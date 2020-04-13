@@ -1,0 +1,152 @@
+
+
+
+
+
+Software architecture
+=======================
+
+classless solar system data objects
+- contain physical characteristics of solar system objects
+
+class AnimatedSpaceObject
+- any kind of objects that is in space
+- has attributes:
+  - object3d: its three.js object3d added to the scene
+  - initAnimation(newDate) for initialization
+  - animate(msecTimestamp) for animation
+
+class PlanetArtist:
+- handles artistic aspect of planet itself (sphere, color, etc...)
+
+idea:
+- separate orbital positions components of:
+  - plane the orbiter is on relative to orbital system and...
+  - path orbiter is following on that plane (circular, ecliptic, other...)
+-> allows for better separation of circular/elliptic and tilted/not tilted
+-> how to do it?
+  - Orbit abstract class, with children CircularOrbit and EllipticOrbit: defines x,y position relative to center
+  - OrbitPlane class: basically an object3d, that may or may not be tilted (actually)
+idea bis:
+- get rid of Orbiter classes and rename PlanetArtist Planet:
+  - Orbit and Planet take an object3d in constructor + their required metadata
+  - Both modify only the object3d data relevant to their role (Orbit: x,z positions; Planet: sphere & appearance)
+
+Todolist:
+- DONE 1) create elliptic orbit with constant orbital speed, sun center-centered
+- DONE 2) sun in 1 of the 2 focal point
+- DONE 3) ellipse correctly oriented
+- DONE 4) tilted elliptic orbits
+- DONE 5) orbital speed is keplerian speed
+- DONE 6) create KeplerOrbit object
+- DONE 7) add meanAnomaly
+- DONE 8) OrbitalSystem
+- DONE 9) better separation of animation&position calculation
+    - position calculation (from given date or interval) in a set of functions?
+    - adding "listeners" (=?orbiters) called as part of animation?
+    - shared position Vector3D?
+    - not having intermediary object3ds? but only a global shared position vector?
+    - challenges with computeState() approach:
+      - Orbit/spaceObject do not only compute positions, but also rotations and scale
+      - why do we need a "plane" object3d for KeplerOrbits? -> because rotations are in object3d's local world: rotating them fucks their x/y positioning
+      - we want children object3ds to have proper rotations/orientation as well as positions (typically: CircularOrbit rotates instead of setting position)
+    -> DONE a) set a initDate and currentTimestamp property for Orbits
+      -> initTimestamp from data!!
+    -> DONE FOR ELLIPTIC b) currently: initAnimation() is never used -> sets currentTimestamp & updates positions according to it
+    -> DONE c) create Orbit's "mobile" object3d
+      -> computeState() computes the mobile new position, by default by making a kopy with an option to updates its properties' instead
+      -> animate() calls computeState() with mobile update
+    -> DONE d) computeState():
+      -> using a Date or an interval from currentTimestamp
+      -> doesn't update any state variable
+    -> DONE e) animate() and initAnimation() use computeState()
+- DONE 10) .computeState() improvement:
+    - re-separate computeStateAtDate from computeState?
+      -> it is weird to mix dates & interval in same function
+      -> what does computeState() needs to compute Orbit?
+        - intervalTimestamp, posOnOrbit (=x&y), and THAT'S ALL!
+        -> makes sense to do only this computation in computeState()
+        -> returns posOnOrbit and vector3
+    - DONE a) new architecture:
+      - computeState() takes a posOnOrbit and interval timeStamp -> computes all from it
+      - animate calls computeState for new pos & then updates state
+- 11) A single file per Orbit in Orbit.js: Orbit, CircularOrbit, EllipticOrbit, KeplerOrbit, Planes
+- 12) Orbit getPoint(), getPoints(), getPointAt(), getPointsAt(), , getPointAtDate()
+- X) CircularOrbit.computeState()
+- X) OrbitArtist class:
+    - disappearing&static orbits
+    - distance to ecliptic markers
+    - different shades depending on above/below on ecliptic
+    - Orbit.showPath() takes an OrbitArtist argument (default to the simplest static orbit)
+
+low priority:
+- X) Fix OrbitalSystem, Orbit and Artist weaknesses:
+    - fromOrbiterData() center Argument
+- X) light source: sun
+- X) planet imaged texture
+- X) open wikipedia widget on click
+- X) set date/speed using variable UI modifiers
+
+
+Relevant space units
+=======================
+
+distance:
+- AU, astronomical unit = avg earth-sun distance = 1.495978707×10^11 m
+  -> within solar system measurement
+- parsecm = 3.08567758149137×10^16 m = 648000/pi AU
+  -> astronomy/astrophysics measurement unit
+
+time:
+- J2000 12h on 1 January 2000
+
+orbit:
+- periapsis: closest point in orbit to primary body  (peri=close) (periphelion = periapsis when primary=sun)
+- apoapsis: furthest point in orbit to primary body     (ap=far) (aphelion = apoapsis when primary=sun)
+- Argument of periapsis
+(- semi-major-axis: half of segment going through peri- and a-phelion)
+- mean anomaly: fraction of elliptical orbit elapsed since last periapsis at given time
+  -> useful to determine orbital starting point!
+- orbital eccentricity: determines shape of ellipse
+- inclination
+
+
+position
+
+mass
+
+
+Useful links:
+=======================
+
+https://github.com/orbitalindex/awesome-space#astronomy-apis
+
+best introduction to Keplerian orbits:
+https://en.wikipedia.org/wiki/Orbital_elements
+
+website dowing the same:
+http://planetoweb.net/app/
+
+stylish orbital simulator:
+https://github.com/TheHappyKoala/Harmony-of-the-Spheres
+
+Planetary satellites:
+https://ssd.jpl.nasa.gov/?sat_elem#legend
+
+JPL Horizon API (hard to use)
+https://ssd.jpl.nasa.gov/horizons.cgi
+
+nasa spice:
+https://naif.jpl.nasa.gov/naif/
+
+Astroquery, python package for querying astronomical datasets:
+https://astroquery.readthedocs.io/en/latest/
+
+other web service:
+https://minorplanetcenter.net//web_service
+
+for earth satellites:
+http://celestrak.com/NORAD/elements/
+
+Incredible planet visualiser, with terrain pictures and exagerable height maps:
+http://planetmaker.wthr.us/#
