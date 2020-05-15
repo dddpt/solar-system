@@ -9,17 +9,26 @@ export class DescriptiveOrbitalSystem extends AnimatedSpaceObjectsGroup{
   constructor(centerData, orbitersData, orbitClass, OrbiterArtistClass){
     super(new THREE.Group())
     const self = this
-    this.center = centerData
-    this.orbiters = orbitersData
-    this.orbiters.forEach(o=>{
-      o.artist = OrbiterArtistClass.fromData(o)
-      o.object3d = o.artist.object3d
-      o.orbit = orbitClass.fromOrbiterData(o, self.center)
-      o.orbit.showPath()
+    this.dict= {}
+    this.center = {
+      data: centerData
+    }
+    this.dict[centerData.name] = this.center
+    this.orbiters = orbitersData.map(od=>{
+      const o = {
+        data: od
+      }
+      o.artist = OrbiterArtistClass.fromData(od)
+      //o.object3d = o.artist.object3d
+      o.orbit = orbitClass.fromOrbiterData(od, self.center.data)
+      o.orbit.add(o.artist)
+      //o.orbit.showPath()
       //addAxesHelper(o.artist.object3d)
       self.add(o.orbit)
+      this.dict[od.name] = o
+      return o
     })
-    this.center.artist = OrbiterArtistClass.fromData(this.center)
+    this.center.artist = OrbiterArtistClass.fromData(this.center.data)
     self.add(this.center.artist)
   }
   

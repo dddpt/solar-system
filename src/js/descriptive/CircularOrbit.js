@@ -9,15 +9,12 @@ const twoPi = 2*Math.PI
  * no computeState() workflow, initAnimation() doesn't take newDate into account
   */
  export class CircularOrbit extends Orbit{
-  constructor(orbiter, initDate, msecOrbitalPeriod, auSemiMajorAxis, radMeanAnomaly, semiMajorAxisToOrbitRadius=x=>x){
+  constructor(initDate, msecOrbitalPeriod, auSemiMajorAxis, radMeanAnomaly, semiMajorAxisToOrbitRadius=x=>x){
     super(initDate)
 
     this.orbitalPeriod = msecOrbitalPeriod
     this.semiMajorAxis = auSemiMajorAxis
     this.meanAnomaly = radMeanAnomaly
-    if(orbiter){
-      this.add(orbiter)
-    }
     this.orbitRadius = semiMajorAxisToOrbitRadius(this.semiMajorAxis)
     this.yAngleSpeedFactor = twoPi / this.orbitalPeriod
     this.lastAnimateTimestamp = 0
@@ -63,7 +60,6 @@ const twoPi = 2*Math.PI
    */
   static fromOrbiterData(o, orbitCenter){
     return new CircularOrbit(
-      o,
       o.epoch,
       o.orbitalPeriod,
       o.semiMajorAxis)

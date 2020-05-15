@@ -4,13 +4,11 @@ import {Orbit} from "./AbstractOrbit.js"
 import {msec, sec, d,w, month, yr} from "../spatialUnits.js"
 import {mod, ellipse, eccentricAnomalyNewtonsMethod, binarySearch, ConsoleInterval} from "../utils.js"
 
-/** EllipticOrbit: orients periapsis on the X axis
- * 
- * directly modifies object3d.position.x and z
+/** EllipticOrbit: orients periapsis along positive X axis
   */
  const MSEC_ANIMATE_SIMULATION_MAX_TIME_INTERVAL = 1*month
  export class EllipticOrbit extends Orbit{
-   constructor(orbiter, initDate, msecOrbitalPeriod, auSemiMajorAxis, eccentricity, radMeanAnomaly, centerStandardGravitationalParameter , semiMajorAxisToOrbitRadius=x=>x){
+   constructor(initDate, msecOrbitalPeriod, auSemiMajorAxis, eccentricity, radMeanAnomaly, centerStandardGravitationalParameter , semiMajorAxisToOrbitRadius=x=>x){
      super(initDate)
  
      this.orbitalPeriod = msecOrbitalPeriod
@@ -20,10 +18,7 @@ import {mod, ellipse, eccentricAnomalyNewtonsMethod, binarySearch, ConsoleInterv
      this.meanAnomaly = radMeanAnomaly
      this.centerStandardGravitationalParameter = centerStandardGravitationalParameter 
      this.ellipse = ellipse(this.semiMajorAxis, this.eccentricity)
- 
-     if(orbiter){
-       this.add(orbiter)
-     }
+
      this.lastAnimateTimestamp = 0
      this.currentPosOnOrbit = 0
      this._initPosOnOrbit = null
@@ -129,11 +124,10 @@ import {mod, ellipse, eccentricAnomalyNewtonsMethod, binarySearch, ConsoleInterv
  
    /** Creates EllipticOrbit from planet data
     * 
-    * Expects a o.object3d and o.orbitCenter.standardGravitationalParameter
+    * Expects o.orbitCenter.standardGravitationalParameter
     */
    static fromOrbiterData(o, orbitCenter){
      return new EllipticOrbit(
-       o,
        o.epoch,
        o.orbitalPeriod,
        o.semiMajorAxis,

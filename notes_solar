@@ -88,6 +88,26 @@ low priority:
 - X) set date/speed using variable UI modifiers
 
 
+Separation of position calculations & three.js object3ds to put in the scene
+=======================
+
+discussion:
+- separation is desirable for:
+  - compute positions without any three.js overhead
+- separation not desirable for:
+  - on the three.js side, it doesn't make sense to separate:
+    the tiltedOrbitalPlane of a KeplerOrbit is essential to the proper positioning of a planetArtist (orientation of planet rotational tilt/etc...)
+
+current:
+- object3ds (both orbit&artist) are all clumsily gathered in the planet's data object literal
+  -> no proper separation!
+- proposal:
+  - data object literal
+  - orbit object 
+
+  - 
+
+
 Relevant space units
 =======================
 

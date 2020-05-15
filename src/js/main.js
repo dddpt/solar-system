@@ -62,7 +62,7 @@ scene.add(light);
 // create ColoredSphere, orbit and tiltedPlane for each planet&sun
 const logSemiMajorAxis = semiMajorAxis => semiMajorAxis!=0 ? Math.log(10*semiMajorAxis) : 0
 const kos = new KeplerOrbitalSystem(sun, planets, ColoredSphere)
-sun.artist.object3d.scale.set(60, 60, 60)
+kos.center.artist.object3d.scale.set(60, 60, 60)
 
 // Initialize orbital system
 kos.initAnimation(epochs.J2000)
@@ -99,12 +99,12 @@ scene.add(di)*/
 //addAxesHelper(earth.artist.object3d)
 //addAxesHelper(jupiter.orbit.object3d)
 
-for(let p of planets){
-  let eclipt = new EclipticOrthogonalsOrbitArtist(p.orbit, p.orbitalPeriod/128,p.orbitalPeriod/128)
+for(let p of kos.orbiters){
+  let eclipt = new EclipticOrthogonalsOrbitArtist(p.orbit, p.data.orbitalPeriod/128,p.data.orbitalPeriod/128)
   scene.add(eclipt.object3d)
 }
 
-console.log("WTF?!")
+console.log("launching...")
 // END DEBUGGING
 
 // animate!!
@@ -121,7 +121,7 @@ function animate(timestamp) {
     const simulTimestamp = timestamp * config.simulSecPerRealSec
     kos.animate(simulTimestamp)
     if((timestamp>lastPrintTS+config.debugLogInterval) || maxSimulTimestampReached){
-      console.log("earth.orbit.orbit.mobile.position: ",earth.orbit.orbit.mobile.position)
+      console.log("kos.dict.Earth.orbit.orbit.mobile.position: ",kos.dict.Earth.orbit.orbit.mobile.position)
       lastPrintTS=timestamp
     }
   }
@@ -134,6 +134,7 @@ requestAnimationFrame( animate );
 
 window.planets = planets
 planets.forEach(p=>window[p.name.toLowerCase()] = p)
+window.kos = kos
 window.scene = scene
 window.sun = sun
 window.yr = yr

@@ -21,7 +21,7 @@ export class OrbitalPlane extends AnimatedSpaceObjectsGroup{
  * Orients periapsis on the TiltedOrbitalPlane's X axis
 */
 export class TiltedOrbitalPlane extends OrbitalPlane{
-  constructor(radInclination, radLongitudeOfAscendingNode, radArgumentOfPeriapsis, ...tiltedObjects){
+  constructor(radInclination, radLongitudeOfAscendingNode, radArgumentOfPeriapsis){
     super()
     this.longitudeOfAscendingNode = radLongitudeOfAscendingNode
     this.inclination = radInclination
@@ -29,7 +29,6 @@ export class TiltedOrbitalPlane extends OrbitalPlane{
     this.object3d.rotateY(this.longitudeOfAscendingNode)
     this.object3d.rotateX(this.inclination)
     this.object3d.rotateY(this.argumentOfPeriapsis)
-    this.add(...tiltedObjects)
   }
   /** does nothing */
   initAnimation(newDate){
@@ -46,7 +45,6 @@ export class TiltedOrbitalPlane extends OrbitalPlane{
     return new TiltedOrbitalPlane(
       o.inclination,
       o.longitudeOfAscendingNode,
-      o.argumentOfPeriapsis,
-      o)
+      o.argumentOfPeriapsis)
   }
 }

@@ -10,10 +10,11 @@ import {TiltedOrbitalPlane} from "./OrbitalPlane.js"
  * Combines TiltedOrbitalPlane and EllipticOrbit together to form a proper Kepler Orbit
 */
 export class KeplerOrbit extends Orbit{
-  constructor(orbiter, epoch, msecOrbitalPeriod, auSemiMajorAxis, eccentricity, radMeanAnomaly, centerStandardGravitationalParameter, radInclination, radLongitudeOfAscendingNode, radArgumentOfPeriapsis, semiMajorAxisToOrbitRadius=x=>x){
+  constructor(epoch, msecOrbitalPeriod, auSemiMajorAxis, eccentricity, radMeanAnomaly, centerStandardGravitationalParameter, radInclination, radLongitudeOfAscendingNode, radArgumentOfPeriapsis, semiMajorAxisToOrbitRadius=x=>x){
     super()
-    this.orbit = new EllipticOrbit(orbiter, epoch, msecOrbitalPeriod, auSemiMajorAxis, eccentricity, radMeanAnomaly, centerStandardGravitationalParameter , semiMajorAxisToOrbitRadius)
-    this.plane = new TiltedOrbitalPlane(radInclination, radLongitudeOfAscendingNode, radArgumentOfPeriapsis, this.orbit)
+    this.orbit = new EllipticOrbit(epoch, msecOrbitalPeriod, auSemiMajorAxis, eccentricity, radMeanAnomaly, centerStandardGravitationalParameter , semiMajorAxisToOrbitRadius)
+    this.plane = new TiltedOrbitalPlane(radInclination, radLongitudeOfAscendingNode, radArgumentOfPeriapsis)
+    this.plane.add(this.orbit)
     this.object3d.add(this.plane.object3d)
     this.mobile = this.orbit.mobile
   }
@@ -36,11 +37,9 @@ export class KeplerOrbit extends Orbit{
   remove(...objects){
     this.orbit.remove(...objects)
   }
-/** compute the state of the Orbit's mobile (position, orientation, etc...) from a position and time interval
-   * 
-   * @param {number} posOnOrbit between 0 and 1, position on orbit to compute from
-   * @param {number} msecSimulInterval time interval (as msec) that for which orbit has to be computed
-   * @param {THREE.Vector3} positionVector (optional) coordinates corresponding to posOnOrbit, avoids a call to getCoordinatesAt(posOnOrbit)
+/** See EllipticOrbit.computeState()
+ * 
+ * Only applies the Kepler orbit's plane's rotations to the vector from EllipticOrbit.computeState()
    */
   computeState(posOnOrbit, msecSimulInterval, positionVector = null){
     const tr = this.orbit.computeState(posOnOrbit, msecSimulInterval, positionVector)
@@ -77,11 +76,10 @@ export class KeplerOrbit extends Orbit{
 
   /** Creates KeplerOrbit from planet data
    * 
-   * Expects a o.object3d and o.orbitCenter.standardGravitationalParameter
+   * Expects o.orbitCenter.standardGravitationalParameter
    */
   static fromOrbiterData(o, orbitCenter){
     return new KeplerOrbit(
-      o,
       o.epoch,
       o.orbitalPeriod,
       o.semiMajorAxis,
