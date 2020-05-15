@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 
-import { AnimatedSpaceObjectsGroup } from '../SpaceObject.js'
+import { AnimatedSpaceObjectsGroup } from '../core/SpaceObject.js'
 
-export class Orbit extends AnimatedSpaceObjectsGroup{
+export class AbstractOrbit extends AnimatedSpaceObjectsGroup{
   constructor(initDate){
     super(new THREE.Group())
     // mobile is the orbiter threejs group

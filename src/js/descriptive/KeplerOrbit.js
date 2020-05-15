@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 
-import {Orbit} from "./AbstractOrbit.js"
+import {AbstractOrbit} from "./AbstractOrbit.js"
 import {EllipticOrbit} from "./EllipticOrbit.js"
 import {TiltedOrbitalPlane} from "./OrbitalPlane.js"
 
@@ -9,7 +9,7 @@ import {TiltedOrbitalPlane} from "./OrbitalPlane.js"
  * 
  * Combines TiltedOrbitalPlane and EllipticOrbit together to form a proper Kepler Orbit
 */
-export class KeplerOrbit extends Orbit{
+export class KeplerOrbit extends AbstractOrbit{
   constructor(epoch, msecOrbitalPeriod, auSemiMajorAxis, eccentricity, radMeanAnomaly, centerStandardGravitationalParameter, radInclination, radLongitudeOfAscendingNode, radArgumentOfPeriapsis, semiMajorAxisToOrbitRadius=x=>x){
     super()
     this.orbit = new EllipticOrbit(epoch, msecOrbitalPeriod, auSemiMajorAxis, eccentricity, radMeanAnomaly, centerStandardGravitationalParameter , semiMajorAxisToOrbitRadius)

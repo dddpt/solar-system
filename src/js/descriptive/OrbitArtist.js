@@ -1,8 +1,4 @@
 import * as THREE from 'three'
-import {mod, ellipse, eccentricAnomalyNewtonsMethod, binarySearch, ConsoleInterval} from "./utils.js"
-
-import { AnimatedSpaceObject, AnimatedSpaceObjectsGroup } from './SpaceObject.js'
-import {msec, sec, d,w, month, yr} from "./spatialUnits.js"
 
 
 export class OrbitArtist{
@@ -15,12 +11,10 @@ export class EclipticOrthogonalsOrbitArtist{
   /**
    * 
    * @param {*} orbit an Orbit object with computeState() method
-   * @param {*} quaternion quaternion representing rotation of orbit's plane relative to ecliptic
    * @param {*} msecOrthoInterval msec interval at which orthogonals must be drawn
+   * @param {*} msecSegmentsInterval msec interval at which segments are to be drawn
    */
   constructor(orbit, msecOrthoInterval, msecSegmentsInterval, color=0x222222){
-    console.log("EclipticOrthogonalsOrbitArtist msecOrthoInterval years: ", msecOrthoInterval/yr)
-    console.log("EclipticOrthogonalsOrbitArtist msecSegmentsInterval years: ", msecSegmentsInterval/yr)
     this.orbit = orbit
     this.orthoInterval = msecOrthoInterval
     this.segmentsInterval = msecSegmentsInterval
@@ -38,14 +32,13 @@ export class EclipticOrthogonalsOrbitArtist{
     let state = initState
     let iter = 0
     let previousPosOnOrbit = 0
-    points.push(state.positionVector)
     while(state.posOnOrbit>=previousPosOnOrbit){
       points.push(state.positionVector)
       previousPosOnOrbit = state.posOnOrbit
       state = orbit.computeState(state.posOnOrbit, this.segmentsInterval, state.positionVector)
       iter++
     }
-    console.log("line iter: ", iter)
+    points.push(state.positionVector)
     const geometry = new THREE.BufferGeometry().setFromPoints(points)
     this.orbitEllipse = new THREE.Line( geometry, material );
     this.object3d.add(this.orbitEllipse)
@@ -67,7 +60,7 @@ export class EclipticOrthogonalsOrbitArtist{
       //console.log("previousPosOnOrbit: ", previousPosOnOrbit)
       //console.log("state.posOnOrbit: ", state.posOnOrbit)
     }
-    console.log("orthig iter: ", iter)
+    console.warn("orthig iter: ", iter)
     // BUG: DOES 129 ITERATIONS SOMETIME -> ??
 
   }

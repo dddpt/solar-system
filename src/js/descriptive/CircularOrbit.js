@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 
-import {Orbit} from "./AbstractOrbit.js"
+import {AbstractOrbit} from "./AbstractOrbit.js"
 
 const twoPi = 2*Math.PI
 
@@ -8,7 +8,7 @@ const twoPi = 2*Math.PI
  * 
  * no computeState() workflow, initAnimation() doesn't take newDate into account
   */
- export class CircularOrbit extends Orbit{
+ export class CircularOrbit extends AbstractOrbit{
   constructor(initDate, msecOrbitalPeriod, auSemiMajorAxis, radMeanAnomaly, semiMajorAxisToOrbitRadius=x=>x){
     super(initDate)
 

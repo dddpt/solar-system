@@ -1,4 +1,4 @@
-import { km, m, au, d, deg } from "./spatialUnits";
+import { km, m, au, d, deg } from "../core/spatialUnits";
 
 export const epochs = {
   J2000: new Date(2000, 0, 1, 12)

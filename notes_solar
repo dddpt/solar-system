@@ -102,10 +102,8 @@ current:
 - object3ds (both orbit&artist) are all clumsily gathered in the planet's data object literal
   -> no proper separation!
 - proposal:
-  - data object literal
-  - orbit object 
-
-  - 
+  -> the OrbitalSystem creates an object that gathers the object's data, artist & orbit
+      -> simply put everything in that object
 
 
 Relevant space units

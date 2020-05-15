@@ -2,7 +2,7 @@
 
 import * as THREE from 'three'
 
-import { AnimatedSpaceObjectsGroup } from '../SpaceObject.js'
+import { AnimatedSpaceObjectsGroup } from '../core/SpaceObject.js'
 
 export class OrbitalPlane extends AnimatedSpaceObjectsGroup{
   constructor(){

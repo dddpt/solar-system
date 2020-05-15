@@ -1,14 +1,13 @@
 import * as THREE from 'three'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
-import * as _ from 'lodash'
 
 import {config} from "./config.js"
 import { CircularOrbit, EllipticOrbit, KeplerOrbit } from './descriptive/Orbit.js'
-import { KeplerOrbitalSystem, CircularOrbitalSystem } from './OrbitalSystem.js'
-import { EclipticOrthogonalsOrbitArtist } from './OrbitArtist.js'
+import { KeplerOrbitalSystem } from './descriptive/KeplerOrbitalSystem.js'
+import { EclipticOrthogonalsOrbitArtist } from './descriptive/OrbitArtist.js'
 import { ColoredSphere } from "./PlanetArtist.js";
-import {planets, sun, mercury, earth, pluto, astronomicalBodies, epochs} from "./SolarSystemData.js"
-import {yr, msec, sec, km, time, units} from "./spatialUnits.js"
+import {planets, sun, mercury, earth, pluto, astronomicalBodies, epochs} from "./data/SolarSystemData.js"
+import {yr, msec, sec, km, time, units} from "./core/spatialUnits.js"
 import {addAxesHelper, resizeRendererToDisplaySize, ellipse} from "./utils.js"
  
 // create scene, camera and renderer
@@ -121,7 +120,7 @@ function animate(timestamp) {
     const simulTimestamp = timestamp * config.simulSecPerRealSec
     kos.animate(simulTimestamp)
     if((timestamp>lastPrintTS+config.debugLogInterval) || maxSimulTimestampReached){
-      console.log("kos.dict.Earth.orbit.orbit.mobile.position: ",kos.dict.Earth.orbit.orbit.mobile.position)
+      //console.log("kos.dict.Earth.orbit.orbit.mobile.position: ",kos.dict.Earth.orbit.orbit.mobile.position)
       lastPrintTS=timestamp
     }
   }

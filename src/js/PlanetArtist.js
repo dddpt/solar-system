@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 
-import { mercury } from "./SolarSystemData.js"
-import { AnimatedSpaceObject } from './SpaceObject.js'
+import { mercury } from "./data/SolarSystemData.js"
+import { AnimatedSpaceObject } from './core/SpaceObject.js'
 
 
 export class PlanetArtist extends AnimatedSpaceObject{
@@ -43,5 +43,5 @@ export class ColoredSphere extends PlanetArtist{
 
 const twoToMercuryRadius = 2 / mercury.meanRadius
 export function radiusToThreeSphereNbSegments(radius){
-  return Math.max(5,Math.round(10*Math.log(twoToMercuryRadius * radius)))
+  return Math.max(10, Math.round(20*Math.log(twoToMercuryRadius * radius)) )
 }
