@@ -147,6 +147,11 @@ Computational optimization:
     -> caches at every *caching step*
     -> computes in between *caching steps*
 
+Precision optimizations:
+- next order derivations:
+  - compute instantaneous acceleration
+    -> add acceleration to speed, and speed to position using smaller deltaTs
+
 Relevant space units
 =======================
 
