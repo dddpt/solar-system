@@ -72,24 +72,28 @@ Todolist:
       - animate calls computeState for new pos & then updates state
 - 11) A single file per Orbit in Orbit.js: Orbit, CircularOrbit, EllipticOrbit, KeplerOrbit, Planes
 - 12) Orbit getPoint(), getPoints(), getPointAt(), getPointsAt(), , getPointAtDate()
-- X) CircularOrbit.computeState()
-- X) OrbitArtist class:
-    - disappearing&static orbits
-    - distance to ecliptic markers
-    - different shades depending on above/below on ecliptic
-    - Orbit.showPath() takes an OrbitArtist argument (default to the simplest static orbit)
+- 
 
 low priority:
-- X) Fix OrbitalSystem, Orbit and Artist weaknesses:
-    - fromOrbiterData() center Argument
+gravitational:
+-
+general:
+- X) set date/speed using variable UI modifiers
 - X) light source: sun
 - X) planet imaged texture
 - X) open wikipedia widget on click
-- X) set date/speed using variable UI modifiers
-
+descriptive solar system
+- X) CircularOrbit.computeState()
+- X) OrbitArtist class:
+    - disappearing&static orbits
+    - DONE distance to ecliptic markers
+    - different shades depending on above/below on ecliptic
+    - Orbit.showPath() takes an OrbitArtist argument (default to the simplest static orbit)
+- X) Fix Orbit and Artist weaknesses:
+    - fromOrbiterData() center Argument
 
 Separation of position calculations & three.js object3ds to put in the scene
-=======================
+--------------------------------
 
 discussion:
 - separation is desirable for:
@@ -105,6 +109,43 @@ current:
   -> the OrbitalSystem creates an object that gathers the object's data, artist & orbit
       -> simply put everything in that object
 
+
+Software architecture for Newtonian gravitation
+--------------------------------
+
+A gravitationally affected body needs properties:
+- mass
+- position
+- speed
+A gravitational system needs:
+- a list of bodies
+- ...what else?
+
+Proposition:
+- NewtonianSystem class extends ASOG
+  -> bodies property: array of NB
+  -> center of mass property
+  -> reimplements initAnimation(), animate(), computeState(), computeStateAtDate()
+- NewtonianBody class extends ASOG
+  -> mass, position, speed properties
+  -> reimplements none of initAnimation(), animate(), computeState(), computeStateAtDate()
+What about initAnimation(), animate(), computeState(), computeStateAtDate()
+
+PROBLEM:
+- no relevant separation of NewtonianBody and its three.js counterparts...
+    -> WHATNOT for NON-GRAPHICAL COMPUTATION&etc...??
+- proposition:
+  1) computational gravitationalSystem&newtBodies with no three.js things
+    -> computeState/etc
+  2) visual versino of gravitationalSystem&newtBodies use the computational ones and call their *computeState()* methods
+
+Computational optimization:
+- add cache:
+  CachingGraviationalSystem
+  -> has a dict of dates -> NB
+  -> has a *caching step* arguments
+    -> caches at every *caching step*
+    -> computes in between *caching steps*
 
 Relevant space units
 =======================
