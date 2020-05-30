@@ -3,11 +3,11 @@ import * as THREE from 'three'
 import {AbstractOrbit} from "./AbstractOrbit.js"
 import {msec, sec, d,w, month, yr} from "../core/spatialUnits.js"
 import {mod, ellipse, eccentricAnomalyNewtonsMethod, binarySearch, ConsoleInterval} from "../utils.js"
+import {config} from "../config.js"
 
 /** EllipticOrbit: orients periapsis along positive X axis
   */
- const MSEC_ANIMATE_SIMULATION_MAX_TIME_INTERVAL = 1*month
- export class EllipticOrbit extends AbstractOrbit{
+export class EllipticOrbit extends AbstractOrbit{
   constructor(initDate, msecOrbitalPeriod, auSemiMajorAxis, eccentricity, radMeanAnomaly, centerStandardGravitationalParameter , semiMajorAxisToOrbitRadius=x=>x){
     super(initDate)
 
@@ -80,7 +80,7 @@ import {mod, ellipse, eccentricAnomalyNewtonsMethod, binarySearch, ConsoleInterv
     
     // compute instant velocity & position at intervals for better precision
     while(intervalComputed<msecSimulInterval){
-      const deltaT = Math.min(msecSimulInterval-intervalComputed, MSEC_ANIMATE_SIMULATION_MAX_TIME_INTERVAL)
+      const deltaT = Math.min(msecSimulInterval-intervalComputed, config.animateSimulationMsecMaxInterval)
       const instantVelocity = this.getInstantVelocity(positionVector.x, positionVector.z)
       const portionOforbitEllapsed = intervalSign*deltaT*instantVelocity / this.ellipse.circumference
       posOnOrbit = mod(posOnOrbit+portionOforbitEllapsed, 1)
