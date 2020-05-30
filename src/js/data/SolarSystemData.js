@@ -1,4 +1,4 @@
-import { km, m, au, d, deg } from "../core/spatialUnits";
+import { km, m, au, d, deg, kg } from "../core/spatialUnits";
 
 export const epochs = {
   J2000: new Date(2000, 0, 1, 12)
@@ -8,6 +8,7 @@ export const sun = {
   name: "Sun",
   standardGravitationalParameter: 1.32712440018*(10**20)*m**3,
   meanRadius: 696342*km,
+  mass: 1.9884 * 10**30*kg,
   color: 0xffff66,
   three: {}
 }
@@ -24,6 +25,7 @@ export const mercury = {
   longitudeOfAscendingNode: 48.331*deg,
   inclination: 7.005*deg,
   argumentOfPeriapsis: 29.124*deg,
+  mass: 3.3011*10**23*kg,
   color: 0xb3b3b3,
   three: {}
 }
@@ -40,6 +42,7 @@ export const venus = {
   longitudeOfAscendingNode: 76.68*deg,
   inclination: 3.39458*deg,
   argumentOfPeriapsis: 54.884*deg,
+  mass: 4.8675 * 10**24*kg,
   color: 0xffcc99,
   three: {}
 }
@@ -56,6 +59,7 @@ export const earth = {
   longitudeOfAscendingNode: -11.26064*deg,
   inclination: 0.00005*deg,
   argumentOfPeriapsis: 114.20783*deg,
+  mass: 5.97237 * 10**24*kg,
   color: 0x0000ff,
   three: {}
 }
@@ -72,6 +76,7 @@ export const mars = {
   longitudeOfAscendingNode: 49.558*deg,
   inclination: 1.85*deg,
   argumentOfPeriapsis: 286.502*deg,
+  mass: 6.4171 * 10**23*kg,
   color: 0xff8533,
   three: {}
 }
@@ -88,6 +93,7 @@ export const jupiter = {
   longitudeOfAscendingNode: 100.464*deg,
   inclination: 1.303*deg,
   argumentOfPeriapsis: 273.867*deg,
+  mass: 1.8982 * 10**27*kg,
   color: 0xffe6b3,
   three: {}
 }
@@ -104,6 +110,7 @@ export const saturn = {
   longitudeOfAscendingNode: 113.665*deg,
   inclination: 2.485*deg,
   argumentOfPeriapsis: 339.392*deg,
+  mass: 5.6834 * 10**26*kg,
   color: 0xd6d6c2,
   three: {}
 }
@@ -120,6 +127,7 @@ export const uranus = {
   longitudeOfAscendingNode: 74.006*deg,
   inclination: 0.773*deg,
   argumentOfPeriapsis: 96.998857*deg,
+  mass: 8.681 * 10**25*kg,
   color: 0xadebeb,
   three: {}
 }
@@ -136,6 +144,7 @@ export const neptune = {
   longitudeOfAscendingNode: 131.784*deg,
   inclination: 1.767975*deg,
   argumentOfPeriapsis: 276.336*deg,
+  mass: 1.02413 * 10**26*kg,
   color: 0x7094db,
   three: {}
 }
@@ -152,6 +161,7 @@ export const pluto = {
   longitudeOfAscendingNode: 110.299*deg,
   inclination: 17.16*deg,
   argumentOfPeriapsis: 113.834*deg,
+  mass: 1.303 * 10**22*kg,
   color: 0x777777,
   three: {}
 }

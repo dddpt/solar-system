@@ -25,6 +25,18 @@ export const time = {
   msec, sec, min, h, d, w, month, yr
 }
 
+// ======================== Mass ======================== 
+// converts any mass to kg mass by multiplying it by the appropriate unit
+// 10 * distance.km = 10km in AU unit
+export const gram = 1000
+export const kg = 1
+export const ton = 1/1000
+export const kiloton = ton / 1000
+export const mass = {
+  gram, kg, ton, kiloton
+}
+export const gravitationalConstant = 6.67430 * 10**11 * m**3 / kg / sec**2 
+
 // ======================== Angles ======================== 
 // converts any angle to rad angle
 export const rad = 1
