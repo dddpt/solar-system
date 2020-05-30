@@ -6,9 +6,11 @@ import { CircularOrbit, EllipticOrbit, KeplerOrbit } from './descriptive/Orbit.j
 import { KeplerOrbitalSystem } from './descriptive/KeplerOrbitalSystem.js'
 import { EclipticOrthogonalsOrbitArtist } from './descriptive/OrbitArtist.js'
 import { ColoredSphere } from "./PlanetArtist.js";
-import {planets, sun, mercury, earth, pluto, astronomicalBodies, epochs} from "./data/SolarSystemData.js"
+import {planets, sun, mercury, earth, pluto, astronomicalBodies, epochs, jupiter} from "./data/SolarSystemData.js"
 import {yr, msec, sec, km, time, units} from "./core/spatialUnits.js"
 import {addAxesHelper, resizeRendererToDisplaySize, ellipse} from "./utils.js"
+import { NewtonianBody, AnimatedNewtonianBody } from './newtonian/NewtonianBody.js'
+import { AnimatedGravitationalSystem } from './newtonian/GravitationalSystem.js'
  
 // create scene, camera and renderer
 const scene = new THREE.Scene();
@@ -59,13 +61,26 @@ light.position.set(-1, 2, 20);
 scene.add(light);
 
 // create ColoredSphere, orbit and tiltedPlane for each planet&sun
-const logSemiMajorAxis = semiMajorAxis => semiMajorAxis!=0 ? Math.log(10*semiMajorAxis) : 0
-const kos = new KeplerOrbitalSystem(sun, planets, ColoredSphere)
-kos.center.artist.object3d.scale.set(60, 60, 60)
+const nb1 = new NewtonianBody(earth.mass/10**17, new THREE.Vector3(0.5,0,0), new THREE.Vector3(0,0,1e-10))
+const nb2 = new NewtonianBody(earth.mass/10**17, new THREE.Vector3(-0.5,0,0), new THREE.Vector3(0,0,-1e-10))
+const pa1 = new ColoredSphere(earth.meanRadius,"blue")
+const pa2 = new ColoredSphere(earth.meanRadius,"red")
+const anb1 = new AnimatedNewtonianBody(nb1)
+const anb2 = new AnimatedNewtonianBody(nb2)
+anb1.add(pa1)
+anb2.add(pa2)
+const ags = new AnimatedGravitationalSystem(epochs.J2000, [anb1, anb2])
+window.nb1=nb1
+window.nb1=nb2
+window.anb1=nb1
+window.anb1=nb2
+window.pa1=pa1
+window.pa2=pa2
+
 
 // Initialize orbital system
-kos.initAnimation(epochs.J2000)
-scene.add(kos.object3d)
+ags.initAnimation(epochs.J2000)
+scene.add(ags.object3d)
 /*console.log("planets.map(p=>p.artist.object3d.position.x)")
 console.log(planets.map(p=>p.artist.object3d.position.x))*/
 
@@ -97,11 +112,8 @@ scene.add(di)*/
 //addAxesHelper(pluto.orbit.orbit.object3d)
 //addAxesHelper(earth.artist.object3d)
 //addAxesHelper(jupiter.orbit.object3d)
-
-for(let p of kos.orbiters){
-  let eclipt = new EclipticOrthogonalsOrbitArtist(p.orbit, p.data.orbitalPeriod/128,p.data.orbitalPeriod/128)
-  scene.add(eclipt.object3d)
-}
+addAxesHelper(pa1.object3d)
+addAxesHelper(pa2.object3d)
 
 console.log("launching...")
 // END DEBUGGING
@@ -109,6 +121,8 @@ console.log("launching...")
 // animate!!
 let lastPrintTS = 0
 let maxSimulTimestampReached = false
+let lastTimestamp = false
+let currentSimulTimestamp = +epochs.J2000
 function animate(timestamp) {
   //timestamp is a milliseconds timestamp since beginning of the animation, differences between 2 timestamps: usually around 16.66 milliseconds (60fps)
   if(timestamp>config.maxSimulTimestamp && !maxSimulTimestampReached){
@@ -117,10 +131,12 @@ function animate(timestamp) {
     console.log("timestamp>maxSimulTimestamp!!")
   }
   if(timestamp<=config.maxSimulTimestamp){
-    const simulTimestamp = timestamp * config.simulSecPerRealSec
-    kos.animate(simulTimestamp)
+    const deltaT = (timestamp-lastTimestamp)
+    const simulDeltaT = deltaT * config.simulSecPerRealSec
+    currentSimulTimestamp += simulDeltaT
+    console.log("nb1.position: ",nb1.position)
+    ags.animate(currentSimulTimestamp)
     if((timestamp>lastPrintTS+config.debugLogInterval) || maxSimulTimestampReached){
-      //console.log("kos.dict.Earth.orbit.orbit.mobile.position: ",kos.dict.Earth.orbit.orbit.mobile.position)
       lastPrintTS=timestamp
     }
   }
@@ -128,12 +144,13 @@ function animate(timestamp) {
   resizeRendererToDisplaySize(renderer, camera)
   renderer.render( scene, camera );
   requestAnimationFrame( animate );
+  lastTimestamp = timestamp
 }
 requestAnimationFrame( animate );
 
 window.planets = planets
 planets.forEach(p=>window[p.name.toLowerCase()] = p)
-window.kos = kos
+window.ags = ags
 window.scene = scene
 window.sun = sun
 window.yr = yr
