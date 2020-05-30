@@ -121,34 +121,39 @@ A gravitational system needs:
 - a list of bodies
 - ...what else?
 
+Needs:
+- good optimization:
+  - avoid duplication
+  - efficient code (call-stack)
+- precision:
+  - resists to different animation step deltaT interval
+- separation of visual&computational part
+
 Proposition:
-- NewtonianSystem class extends ASOG
-  -> bodies property: array of NB
-  -> center of mass property
-  -> reimplements initAnimation(), animate(), computeState(), computeStateAtDate()
-- NewtonianBody class extends ASOG
-  -> mass, position, speed properties
-  -> reimplements none of initAnimation(), animate(), computeState(), computeStateAtDate()
-What about initAnimation(), animate(), computeState(), computeStateAtDate()
+- NewtonianBody class
+  -> mass, position, speed, acceleration, force properties
+  -> only a data-repository for computations!
+- GravitationalSystem
+  -> bodies property: list of NB
+  -> reimplements computeState(), computeStateAtDate()
+  -> computes positions/speeds/accelerations/forces only, no three.js!
+- AnimatedNewtonianBody class extends ASOG
+  -> takes a NB property
+  -> unifies ANB.object3d.position = NB.position
+  -> reimplements initAnimation(), animate()
+- AnimatedGravitationalSystem class extends ASOG
+  -> bodies property=children = list of ANB
+  -> creates a GS from the ANBs' NBs
+  -> reimplements initAnimation(), animate() -> calling GS.computeState() / GS.computeStateAtDate()
 
-PROBLEM:
-- no relevant separation of NewtonianBody and its three.js counterparts...
-    -> WHATNOT for NON-GRAPHICAL COMPUTATION&etc...??
-- proposition:
-  1) computational gravitationalSystem&newtBodies with no three.js things
-    -> computeState/etc
-  2) visual versino of gravitationalSystem&newtBodies use the computational ones and call their *computeState()* methods
-
-Computational optimization:
+Computational/Precision optimization:
 - add cache:
   CachingGraviationalSystem
   -> has a dict of dates -> NB
   -> has a *caching step* arguments
     -> caches at every *caching step*
     -> computes in between *caching steps*
-
-Precision optimizations:
-- next order derivations:
+- precision next order derivations:
   - compute instantaneous acceleration
     -> add acceleration to speed, and speed to position using smaller deltaTs
 
