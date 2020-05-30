@@ -69,5 +69,7 @@ export const units = {
   distance,
   time,
   angle,
-  coord:{toCarthesian, toPolar}
+  coord:{toCarthesian, toPolar},
+  mass,
+  gravitationalConstant
 }
