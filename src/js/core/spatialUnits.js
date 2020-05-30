@@ -27,7 +27,6 @@ export const time = {
 
 // ======================== Mass ======================== 
 // converts any mass to kg mass by multiplying it by the appropriate unit
-// 10 * distance.km = 10km in AU unit
 export const gram = 1000
 export const kg = 1
 export const ton = 1/1000
