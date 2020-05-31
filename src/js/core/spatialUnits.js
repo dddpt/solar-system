@@ -34,7 +34,7 @@ export const kiloton = ton / 1000
 export const mass = {
   gram, kg, ton, kiloton
 }
-export const gravitationalConstant = 6.67430 * 10**11 * m**3 / kg / sec**2 
+export const gravitationalConstant = 6.67430 * 10**(-11) * m**3 / kg / sec**2 
 
 // ======================== Angles ======================== 
 // converts any angle to rad angle
