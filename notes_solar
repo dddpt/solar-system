@@ -157,6 +157,10 @@ Computational/Precision optimization:
   - compute instantaneous acceleration
     -> add acceleration to speed, and speed to position using smaller deltaTs
 
+DEBUGGING
+- earth revolves around sun in a matter of days
+  -> probably handling time/forces computation wrong somewhere
+
 Relevant space units
 =======================
 

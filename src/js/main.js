@@ -61,9 +61,9 @@ light.position.set(-1, 2, 20);
 scene.add(light);
 
 // create ColoredSphere, orbit and tiltedPlane for each planet&sun
-const nb1 = new NewtonianBody(earth.mass/10**17, new THREE.Vector3(0.5,0,0), new THREE.Vector3(0,0,1e-10))
-const nb2 = new NewtonianBody(earth.mass/10**17, new THREE.Vector3(-0.5,0,0), new THREE.Vector3(0,0,-1e-10))
-const pa1 = new ColoredSphere(earth.meanRadius,"blue")
+const nb1 = new NewtonianBody(sun.mass, new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0))
+const nb2 = new NewtonianBody(earth.mass, new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,-2e-10))
+const pa1 = new ColoredSphere(earth.meanRadius*3,"yellow")
 const pa2 = new ColoredSphere(earth.meanRadius,"red")
 const anb1 = new AnimatedNewtonianBody(nb1)
 const anb2 = new AnimatedNewtonianBody(nb2)

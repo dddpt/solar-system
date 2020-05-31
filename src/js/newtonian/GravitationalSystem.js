@@ -2,7 +2,7 @@
 import * as THREE from 'three'
 
 import { AnimatedSpaceObjectsGroup } from '../core/SpaceObject.js'
-import {msec, sec, d,w, month, yr, kg, gravitationalConstant} from "../core/spatialUnits.js"
+import {msec, sec, d,h,w, month, yr, kg, gravitationalConstant} from "../core/spatialUnits.js"
 import {config} from "../config.js"
 import { binarySearch } from '../utils.js'
 
@@ -30,7 +30,7 @@ export class AnimatedGravitationalSystem extends AnimatedSpaceObjectsGroup{
   animate(msecSimulTimestamp){
     const msecInterval = msecSimulTimestamp - this.currentTimestamp
 
-    console.log("msecSimulTimestamp: ", msecSimulTimestamp, ", this.currentTimestamp: ", this.currentTimestamp, ", msecInterval: ", msecInterval)
+    //console.log("msecSimulTimestamp: ", msecSimulTimestamp, ", this.currentTimestamp: ", this.currentTimestamp, ", msecInterval: ", msecInterval)
     this.computeState(msecInterval)
     this.currentTimestamp = msecSimulTimestamp
     // newtonian mechaniiics
@@ -86,15 +86,14 @@ export class GravitationalSystem{
   * @param {boolean} inPlace whether to update the bodies in place or return copies
   */
   computeState(msecSimulInterval, inPlace=true){
-    console.log("msecSimulInterval: ", msecSimulInterval, ", msecSimulInterval as days:", msecSimulInterval/d)
+    console.log("COMPUTE STATE msecSimulInterval: ", msecSimulInterval, ", msecSimulInterval as days:", msecSimulInterval/d, ", as hours: ",  msecSimulInterval/h)
     const bodies = inPlace? this.bodies : this.bodies.map(b=>b.clone())
 
     // compute instant force & acceleration at intervals for better precision
     let intervalComputed = 0
     while(intervalComputed<msecSimulInterval){
-      console.log("msecSimulInterval-intervalComputed: ", msecSimulInterval-intervalComputed, ", config.animateSimulationMsecMaxInterval: ",config.animateSimulationMsecMaxInterval)
       const deltaT = Math.min(msecSimulInterval-intervalComputed, config.animateSimulationMsecMaxInterval)
-      console.log("deltaT: ", deltaT, ", deltaT as days:", deltaT/d)
+      console.log("+ msecSimulInterval-intervalComputed: ", msecSimulInterval-intervalComputed, ", config.simMsecMaxInterval: ",config.animateSimulationMsecMaxInterval, "deltaT: ", deltaT, ", deltaT as days:", deltaT/d, ", as hours: ",  deltaT/h)
       // update positions
       bodies.forEach(b=>{
         b.position.add(b.speed.clone().multiplyScalar(msecSimulInterval))
@@ -111,12 +110,9 @@ export class GravitationalSystem{
           b2.force.add(force)
           b1.force.add(force.negate())
         }
-        console.log("b1.force: ",b1.force.clone())
         b1.acceleration = b1.force.divideScalar(b1.mass)
-        console.log("b1.acceleration: ",b1.acceleration.clone())
         b1.speed.add(b1.acceleration.clone().multiplyScalar(msecSimulInterval))
-        console.log("b1.speed: ",b1.speed.clone())
-        console.log("b1.position: ",b1.position.clone())
+        console.log("  - pos: ",b1.position.clone(), ", spd: ",b1.speed.clone(), ", acc: ",b1.acceleration.clone(), ", force: ",b1.force.clone())
       }
       //update intervalComputed
       intervalComputed += deltaT
