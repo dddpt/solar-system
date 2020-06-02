@@ -25,7 +25,7 @@ export class EllipticOrbit extends AbstractOrbit{
   }
 
   /** */
-  initAnimation(newDate){
+  initAnimation(newDate=this.initDate){
     super.initAnimation(newDate)
     const state = this.computeStateAtDate(newDate)
     this.currentPosOnOrbit = state.posOnOrbit
@@ -66,6 +66,7 @@ export class EllipticOrbit extends AbstractOrbit{
  
   /** compute the state of the Orbit's mobile (position, orientation, etc...) from a position and time interval
   * 
+  * Doesn't affect the state of the Elliptic Orbit (doesn't update this.mobile.position), call initAnimation()/animate() for that
   * @param {number} posOnOrbit between 0 and 1, position on orbit to compute from
   * @param {number} msecSimulInterval time interval (as msec) that for which orbit has to be computed
   * @param {THREE.Vector3} positionVector (optional) coordinates corresponding to posOnOrbit, avoids a call to getCoordinatesAt(posOnOrbit)
@@ -81,7 +82,7 @@ export class EllipticOrbit extends AbstractOrbit{
     // compute instant velocity & position at intervals for better precision
     while(intervalComputed<msecSimulInterval){
       const deltaT = Math.min(msecSimulInterval-intervalComputed, config.animateSimulationMsecMaxInterval)
-      const instantVelocity = this.getInstantVelocity(positionVector.x, positionVector.z)
+      const instantVelocity = this.getInstantVelocity(posOnOrbit, positionVector)
       const portionOforbitEllapsed = intervalSign*deltaT*instantVelocity / this.ellipse.circumference
       posOnOrbit = mod(posOnOrbit+portionOforbitEllapsed, 1)
       intervalComputed += deltaT
@@ -93,9 +94,11 @@ export class EllipticOrbit extends AbstractOrbit{
 
   /** compute the state of the Orbit's mobile (position, orientation, etc...) from a date
   * 
+  * Doesn't affect the state of the Elliptic Orbit (doesn't update this.mobile.position), call initAnimation()/animate() for that
   * @param {Date} date fixed date at which to compute state
   */
-  computeStateAtDate(date){
+  computeStateAtDate(date=this.initDate){
+    console.log("EllipticOrbit.computeStateAtDate() date: ", date)
     // if date: compute from initial date&position
     const msecSimulInterval = (+date) - (+this.initDate)
     const initPosOnOrbit = this.initPosOnOrbit()
@@ -119,10 +122,28 @@ export class EllipticOrbit extends AbstractOrbit{
   }
 
   /**au/msec */
-  getInstantVelocity(x, z){
-    const r = Math.sqrt(x**2 + z**2)
+  getInstantVelocity(posOnOrbit = null, positionVector = null){
+    if(positionVector===null && posOnOrbit===null){
+      positionVector = this.mobile.position
+    }
+    if(positionVector===null){
+      positionVector = this.getCoordinatesAt(posOnOrbit)
+    }
+    const r = Math.sqrt(positionVector.x**2 + positionVector.z**2)
     const velocity = Math.sqrt(this.centerStandardGravitationalParameter*(2/r - 1/this.semiMajorAxis)) / sec
     return velocity
+  }
+
+  /**au/msec */
+  getInstantVelocityVector(posOnOrbit = null, positionVector = null){
+    if(positionVector===null && posOnOrbit===null){
+      positionVector = this.mobile.position
+    }
+    if(positionVector===null){
+      positionVector = this.getCoordinatesAt(posOnOrbit)
+    }
+    const velocity = getInstantVelocity(posOnOrbit, positionVector)
+    return (new THREE.Vector3(0,0,1)).cross(new THREE.Vector3(positionVector.x,0,positionVector.z)).normalize().multiplyScalar(velocity)
   }
 
   /** Creates EllipticOrbit from planet data

@@ -20,7 +20,7 @@ export class KeplerOrbit extends AbstractOrbit{
   }
 
   /** */
-  initAnimation(newDate){
+  initAnimation(newDate=this.orbit.initDate){
     this.orbit.initAnimation(newDate)
   }
 
@@ -51,10 +51,24 @@ export class KeplerOrbit extends AbstractOrbit{
    * 
    * @param {Date} date fixed date at which to compute state
    */
-  computeStateAtDate(date){
+  computeStateAtDate(date=this.orbit.initDate){
     const tr = this.orbit.computeStateAtDate(date)
     tr.positionVector.applyQuaternion(this.plane.object3d.quaternion)
     return tr
+  }
+
+  getPosition(){
+    return this.mobile.position.clone().applyQuaternion(this.plane.object3d.quaternion)
+  }
+
+  /**au/msec */
+  getInstantVelocity(posOnOrbit = null, positionVector = null){
+    return this.orbit.getInstantVelocity(posOnOrbit, positionVector)
+  }
+
+  /**au/msec */
+  getInstantVelocityVector(posOnOrbit = null, positionVector = null){
+    return this.orbit.getInstantVelocityVector(posOnOrbit, positionVector).applyQuaternion(this.plane.object3d.quaternion)
   }
 
   /** Returns path, copies the plane's object3d */

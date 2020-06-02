@@ -24,7 +24,13 @@ export class NewtonianBody{
   }
 
   static fromOrbiterData(o, orbitCenter){
-    return new KeplerOrbit()
+    const ko = new KeplerOrbit(o, orbitCenter)
+    ko.computeStateAtDate()
+    return new NewtonianBody(
+      o.mass,
+      ko.getPosition(),
+      ko.getInstantVelocityVector()
+    )
   }
 }
 
