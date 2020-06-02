@@ -19,7 +19,7 @@ export class DescriptiveOrbitalSystem extends AnimatedSpaceObjectsGroup{
       }
       o.artist = OrbiterArtistClass.fromData(od)
       //o.object3d = o.artist.object3d
-      o.orbit = orbitClass.fromOrbiterData(od, self.center.data)
+      o.orbit = orbitClass.fromData(od, self.center.data)
       o.orbit.add(o.artist)
       //o.orbit.showPath()
       //addAxesHelper(o.artist.object3d)

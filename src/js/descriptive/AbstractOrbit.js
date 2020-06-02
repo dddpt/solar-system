@@ -27,7 +27,7 @@ export class AbstractOrbit extends AnimatedSpaceObjectsGroup{
   }
   
   /**ABSTRACT */
-  static fromOrbiterData(o, orbitCenter){
-    throw "Orbit.fromOrbiterData(): abstract method called"
+  static fromData(o, orbitCenter){
+    throw "Orbit.fromData(): abstract method called"
   }
 }

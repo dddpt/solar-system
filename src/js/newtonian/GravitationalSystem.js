@@ -86,14 +86,14 @@ export class GravitationalSystem{
   * @param {boolean} inPlace whether to update the bodies in place or return copies
   */
   computeState(msecSimulInterval, inPlace=true){
-    console.log("COMPUTE STATE msecSimulInterval: ", msecSimulInterval, ", msecSimulInterval as days:", msecSimulInterval/d, ", as hours: ",  msecSimulInterval/h)
+    //console.log("COMPUTE STATE msecSimulInterval: ", msecSimulInterval, ", msecSimulInterval as days:", msecSimulInterval/d, ", as hours: ",  msecSimulInterval/h)
     const bodies = inPlace? this.bodies : this.bodies.map(b=>b.clone())
 
     // compute instant force & acceleration at intervals for better precision
     let intervalComputed = 0
     while(intervalComputed<msecSimulInterval){
       const deltaT = Math.min(msecSimulInterval-intervalComputed, config.animateSimulationMsecMaxInterval)
-      console.log("+ msecSimulInterval-intervalComputed: ", msecSimulInterval-intervalComputed, ", config.simMsecMaxInterval: ",config.animateSimulationMsecMaxInterval, "deltaT: ", deltaT, ", deltaT as days:", deltaT/d, ", as hours: ",  deltaT/h)
+      //console.log("+ msecSimulInterval-intervalComputed: ", msecSimulInterval-intervalComputed, ", config.simMsecMaxInterval: ",config.animateSimulationMsecMaxInterval, "deltaT: ", deltaT, ", deltaT as days:", deltaT/d, ", as hours: ",  deltaT/h)
       // update positions
       bodies.forEach(b=>{
         b.position.add(b.speed.clone().multiplyScalar(msecSimulInterval))
@@ -112,7 +112,7 @@ export class GravitationalSystem{
         }
         b1.acceleration = b1.force.divideScalar(b1.mass)
         b1.speed.add(b1.acceleration.clone().multiplyScalar(msecSimulInterval))
-        console.log("  - pos: ",b1.position.clone(), ", spd: ",b1.speed.clone(), ", acc: ",b1.acceleration.clone(), ", force: ",b1.force.clone())
+        //console.log("  - pos: ",b1.position.clone(), ", spd: ",b1.speed.clone(), ", acc: ",b1.acceleration.clone(), ", force: ",b1.force.clone())
       }
       //update intervalComputed
       intervalComputed += deltaT

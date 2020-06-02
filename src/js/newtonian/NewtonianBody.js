@@ -18,15 +18,15 @@ export class NewtonianBody{
     this.speed = auPerMsecSpeed
     this.acceleration = auPerMsec2Acceleration? auPerMsec2Acceleration : new THREE.Vector3()
     this.force = this.acceleration.clone().multiplyScalar(this.mass)
-    console.log("new NewtonianBody(mass=",kgMass,", pos=",auPosition.clone(),", spd=",auPerMsecSpeed.clone(), ", acc=", this.acceleration.clone(),")")
+    //console.log("new NewtonianBody(mass=",kgMass,", pos=",auPosition.clone(),", spd=",auPerMsecSpeed.clone(), ", acc=", this.acceleration.clone(),")")
   }
 
   clone(){
     return new NewtonianBody(this.mass, this.position.clone(), this.speed.clone(), this.acceleration.clone())
   }
 
-  static fromOrbiterData(o, orbitCenter){
-    const ko = KeplerOrbit.fromOrbiterData(o, orbitCenter)
+  static fromData(o, orbitCenter){
+    const ko = KeplerOrbit.fromData(o, orbitCenter)
     ko.initAnimation()
     return new NewtonianBody(
       o.mass,

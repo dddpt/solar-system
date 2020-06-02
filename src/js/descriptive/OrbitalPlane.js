@@ -10,8 +10,8 @@ export class OrbitalPlane extends AnimatedSpaceObjectsGroup{
   }
   
   /**ABSTRACT */
-  static fromOrbiterData(o){
-    throw "OrbitalPlane.fromOrbiterData(): abstract method called"
+  static fromData(o){
+    throw "OrbitalPlane.fromData(): abstract method called"
   }
 }
 
@@ -41,7 +41,7 @@ export class TiltedOrbitalPlane extends OrbitalPlane{
    * 
    * Expects a o.object3d
    */
-  static fromOrbiterData(o){
+  static fromData(o){
     return new TiltedOrbitalPlane(
       o.inclination,
       o.longitudeOfAscendingNode,

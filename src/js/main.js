@@ -76,7 +76,7 @@ document.body.appendChild(text2);
 
 // create ColoredSphere, & gravitational system
 const nb1 = new NewtonianBody(sun.mass, new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0))
-const nb2 = NewtonianBody.fromOrbiterData(earth, sun)//new NewtonianBody(earth.mass, new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,-2e-10))
+const nb2 = NewtonianBody.fromData(earth, sun)//new NewtonianBody(earth.mass, new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,-2e-10))
 const pa1 = new ColoredSphere(earth.meanRadius*3,"yellow")
 const pa2 = new ColoredSphere(earth.meanRadius,"red")
 const anb1 = new AnimatedNewtonianBody(nb1)
@@ -148,7 +148,6 @@ function animate(timestamp) {
     const deltaT = (timestamp-lastTimestamp)
     const simulDeltaT = deltaT * config.simulSecPerRealSec
     currentSimulTimestamp += simulDeltaT
-    console.log("nb1.position: ",nb1.position)
     ags.animate(currentSimulTimestamp)
     if((timestamp>lastPrintTS+config.debugLogInterval) || maxSimulTimestampReached){
       lastPrintTS=timestamp

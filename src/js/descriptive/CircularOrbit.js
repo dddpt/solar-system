@@ -58,7 +58,7 @@ const twoPi = 2*Math.PI
    * 
    * Expects a o.object3d
    */
-  static fromOrbiterData(o, orbitCenter){
+  static fromData(o, orbitCenter){
     return new CircularOrbit(
       o.epoch,
       o.orbitalPeriod,
