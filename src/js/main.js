@@ -73,6 +73,15 @@ text2.style.top = 0 + 'px';
 text2.style.left = 0 + 'px';
 document.body.appendChild(text2);
 
+//KeplerOrbitalSystem
+const kos = new KeplerOrbitalSystem(sun, planets, ColoredSphere)
+kos.center.artist.object3d.scale.set(60, 60, 60)
+kos.initAnimation(epochs.J2000)
+scene.add(kos.object3d)
+for(let p of kos.orbiters){
+  let eclipt = new EclipticOrthogonalsOrbitArtist(p.orbit, p.data.orbitalPeriod/128,p.data.orbitalPeriod/128)
+  scene.add(eclipt.object3d)
+}
 
 // create ColoredSphere, & gravitational system
 const nb1 = new NewtonianBody(sun.mass, new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0))
@@ -90,8 +99,6 @@ window.anb1=nb1
 window.anb1=nb2
 window.pa1=pa1
 window.pa2=pa2
-
-
 // Initialize orbital system
 ags.initAnimation(epochs.J2000)
 scene.add(ags.object3d)
@@ -149,6 +156,7 @@ function animate(timestamp) {
     const simulDeltaT = deltaT * config.simulSecPerRealSec
     currentSimulTimestamp += simulDeltaT
     ags.animate(currentSimulTimestamp)
+    kos.animate(currentSimulTimestamp)
     if((timestamp>lastPrintTS+config.debugLogInterval) || maxSimulTimestampReached){
       lastPrintTS=timestamp
       text2.innerHTML = new Date(currentSimulTimestamp)
@@ -168,6 +176,7 @@ requestAnimationFrame( animate );
 
 window.planets = planets
 planets.forEach(p=>window[p.name.toLowerCase()] = p)
+window.kos = kos
 window.ags = ags
 window.scene = scene
 window.sun = sun

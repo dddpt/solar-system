@@ -154,7 +154,7 @@ eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nexports.config = undefined;\n\nvar _spatialUnits = __webpack_require__(/*! ./core/spatialUnits.js */ \"./src/js/core/spatialUnits.js\");\n\nvar config = exports.config = {\n  simulSecPerRealSec: 1 * _spatialUnits.yr / (30 * _spatialUnits.sec),\n  maxSimulTimestamp: 30000,\n  debugLogInterval: 2000,\n  textUpdateInterval: 500,\n  animateSimulationMsecMaxInterval: 1 * _spatialUnits.d\n};\n\n//# sourceURL=webpack:///./src/js/config.js?");
+eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nexports.config = undefined;\n\nvar _spatialUnits = __webpack_require__(/*! ./core/spatialUnits.js */ \"./src/js/core/spatialUnits.js\");\n\nvar config = exports.config = {\n  simulSecPerRealSec: 1 * _spatialUnits.yr / (30 * _spatialUnits.sec),\n  maxSimulTimestamp: 20,\n  debugLogInterval: 2000,\n  textUpdateInterval: 500,\n  animateSimulationMsecMaxInterval: 1 * _spatialUnits.d\n};\n\n//# sourceURL=webpack:///./src/js/config.js?");
 
 /***/ }),
 
