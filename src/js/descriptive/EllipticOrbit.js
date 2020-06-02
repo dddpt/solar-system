@@ -56,7 +56,7 @@ export class EllipticOrbit extends AbstractOrbit{
   animate(msecSimulTimestamp){
   super.animate(msecSimulTimestamp)
     const msecSimulInterval = msecSimulTimestamp-this.lastAnimateTimestamp
-    const state = this.computeState(this.currentPosOnOrbit, msecSimulInterval, this.mobile.position.clone())
+    const state = this.computeState(msecSimulInterval, this.currentPosOnOrbit, this.mobile.position.clone())
     this.currentPosOnOrbit = state.posOnOrbit
     this.mobile.position.x = state.positionVector.x
     this.mobile.position.z = state.positionVector.z
@@ -70,7 +70,7 @@ export class EllipticOrbit extends AbstractOrbit{
   * @param {number} msecSimulInterval time interval (as msec) that for which orbit has to be computed
   * @param {THREE.Vector3} positionVector (optional) coordinates corresponding to posOnOrbit, avoids a call to getCoordinatesAt(posOnOrbit)
   */
-  computeState(posOnOrbit, msecSimulInterval, positionVector = null){
+  computeState(msecSimulInterval, posOnOrbit, positionVector = null){
     if(positionVector===null){
       positionVector = this.getCoordinatesAt(posOnOrbit)
     }
@@ -99,7 +99,7 @@ export class EllipticOrbit extends AbstractOrbit{
     // if date: compute from initial date&position
     const msecSimulInterval = (+date) - (+this.initDate)
     const initPosOnOrbit = this.initPosOnOrbit()
-    return this.computeState(initPosOnOrbit, msecSimulInterval)
+    return this.computeState(msecSimulInterval, initPosOnOrbit)
   }
 
   getCoordinatesAt(u){

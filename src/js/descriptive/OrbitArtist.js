@@ -35,7 +35,7 @@ export class EclipticOrthogonalsOrbitArtist{
     while(state.posOnOrbit>=previousPosOnOrbit){
       points.push(state.positionVector)
       previousPosOnOrbit = state.posOnOrbit
-      state = orbit.computeState(state.posOnOrbit, this.segmentsInterval, state.positionVector)
+      state = orbit.computeState(this.segmentsInterval, state.posOnOrbit, state.positionVector)
       iter++
     }
     points.push(state.positionVector)
@@ -55,7 +55,7 @@ export class EclipticOrthogonalsOrbitArtist{
       this.orthogonals.push(orthogonal)
       this.object3d.add(orthogonal)
       previousPosOnOrbit = state.posOnOrbit
-      state = orbit.computeState(state.posOnOrbit, this.orthoInterval, state.positionVector)
+      state = orbit.computeState(this.orthoInterval, state.posOnOrbit, state.positionVector)
       iter++
       //console.log("previousPosOnOrbit: ", previousPosOnOrbit)
       //console.log("state.posOnOrbit: ", state.posOnOrbit)

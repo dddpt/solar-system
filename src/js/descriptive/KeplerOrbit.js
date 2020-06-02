@@ -41,8 +41,8 @@ export class KeplerOrbit extends AbstractOrbit{
  * 
  * Only applies the Kepler orbit's plane's rotations to the vector from EllipticOrbit.computeState()
    */
-  computeState(posOnOrbit, msecSimulInterval, positionVector = null){
-    const tr = this.orbit.computeState(posOnOrbit, msecSimulInterval, positionVector)
+  computeState(msecSimulInterval, posOnOrbit, positionVector = null){
+    const tr = this.orbit.computeState(msecSimulInterval, posOnOrbit, positionVector)
     tr.positionVector.applyQuaternion(this.plane.object3d.quaternion)
     return tr
   }
