@@ -60,7 +60,21 @@ const light = new THREE.DirectionalLight(color, intensity);
 light.position.set(-1, 2, 20);
 scene.add(light);
 
-// create ColoredSphere, orbit and tiltedPlane for each planet&sun
+// create text div for date
+let text2 = document.createElement('div');
+text2.style.position = 'absolute';
+//text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+text2.style.width = 100;
+text2.style.height = 100;
+//text2.style.backgroundColor = "blue";
+text2.style.color = "white";
+text2.innerHTML = "hi there!";
+text2.style.top = 0 + 'px';
+text2.style.left = 0 + 'px';
+document.body.appendChild(text2);
+
+
+// create ColoredSphere, & gravitational system
 const nb1 = new NewtonianBody(sun.mass, new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0))
 const nb2 = new NewtonianBody(earth.mass, new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,-2e-10))
 const pa1 = new ColoredSphere(earth.meanRadius*3,"yellow")
@@ -138,6 +152,11 @@ function animate(timestamp) {
     ags.animate(currentSimulTimestamp)
     if((timestamp>lastPrintTS+config.debugLogInterval) || maxSimulTimestampReached){
       lastPrintTS=timestamp
+      text2.innerHTML = new Date(currentSimulTimestamp)
+    }
+    if((timestamp%config.textUpdateInterval)<30 || maxSimulTimestampReached){
+      lastPrintTS=timestamp
+      text2.innerHTML = new Date(currentSimulTimestamp) + (maxSimulTimestampReached? "":"<br>framerate:"+Math.round(1000/deltaT))
     }
   }
   updateCameraLS(timestamp)
@@ -161,3 +180,4 @@ window.astronomicalBodies = astronomicalBodies
 window.THREE = THREE
 window.addAxesHelper = addAxesHelper
 window.units = units
+window.config=config
