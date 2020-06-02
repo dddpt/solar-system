@@ -2,6 +2,7 @@
 import * as THREE from 'three'
 
 import { AnimatedSpaceObjectsGroup } from '../core/SpaceObject.js'
+import { KeplerOrbit } from '../descriptive/KeplerOrbit.js'
 
 export class NewtonianBody{
   /** NewtonianBody: represents an object affected by gravity
@@ -17,6 +18,7 @@ export class NewtonianBody{
     this.speed = auPerMsecSpeed
     this.acceleration = auPerMsec2Acceleration? auPerMsec2Acceleration : new THREE.Vector3()
     this.force = this.acceleration.clone().multiplyScalar(this.mass)
+    console.log("new NewtonianBody(mass=",kgMass,", pos=",auPosition.clone(),", spd=",auPerMsecSpeed.clone(), ", acc=", this.acceleration.clone(),")")
   }
 
   clone(){
@@ -24,8 +26,8 @@ export class NewtonianBody{
   }
 
   static fromOrbiterData(o, orbitCenter){
-    const ko = new KeplerOrbit(o, orbitCenter)
-    ko.computeStateAtDate()
+    const ko = KeplerOrbit.fromOrbiterData(o, orbitCenter)
+    ko.initAnimation()
     return new NewtonianBody(
       o.mass,
       ko.getPosition(),

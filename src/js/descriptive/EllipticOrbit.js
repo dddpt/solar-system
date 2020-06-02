@@ -18,6 +18,7 @@ export class EllipticOrbit extends AbstractOrbit{
     this.meanAnomaly = radMeanAnomaly
     this.centerStandardGravitationalParameter = centerStandardGravitationalParameter 
     this.ellipse = ellipse(this.semiMajorAxis, this.eccentricity)
+    console.log("new EllipticOrbit() auSemiMajorAxis=",auSemiMajorAxis, ", this.semiMajorAxis=",this.semiMajorAxis, ", centerStandardGravitationalParameter=",centerStandardGravitationalParameter)
 
     this.lastAnimateTimestamp = 0
     this.currentPosOnOrbit = 0
@@ -123,14 +124,23 @@ export class EllipticOrbit extends AbstractOrbit{
 
   /**au/msec */
   getInstantVelocity(posOnOrbit = null, positionVector = null){
+    console.log("A EllipticOrbit.getInstantVelocity() posOnOrbit=", posOnOrbit, ", positionVector=",positionVector,")")
     if(positionVector===null && posOnOrbit===null){
       positionVector = this.mobile.position
     }
     if(positionVector===null){
       positionVector = this.getCoordinatesAt(posOnOrbit)
     }
+    console.log("B EllipticOrbit.getInstantVelocity() posOnOrbit=", posOnOrbit, ", positionVector=",positionVector,")")
     const r = Math.sqrt(positionVector.x**2 + positionVector.z**2)
     const velocity = Math.sqrt(this.centerStandardGravitationalParameter*(2/r - 1/this.semiMajorAxis)) / sec
+    console.log("this.centerStandardGravitationalParameter=",this.centerStandardGravitationalParameter)
+    console.log("r=",r)
+    console.log("this.semiMajorAxis=",this.semiMajorAxis)
+    console.log("sec=",sec)
+    console.log("this.centerStandardGravitationalParameter*(2/r - 1/this.semiMajorAxis)=",this.centerStandardGravitationalParameter*(2/r - 1/this.semiMajorAxis))
+    console.log("Math.sqrt(this.centerStandardGravitationalParameter*(2/r - 1/this.semiMajorAxis))=",Math.sqrt(this.centerStandardGravitationalParameter*(2/r - 1/this.semiMajorAxis)))
+    console.log("Math.sqrt(this.centerStandardGravitationalParameter*(2/r - 1/this.semiMajorAxis)) / sec=",Math.sqrt(this.centerStandardGravitationalParameter*(2/r - 1/this.semiMajorAxis)) / sec)
     return velocity
   }
 
@@ -142,8 +152,10 @@ export class EllipticOrbit extends AbstractOrbit{
     if(positionVector===null){
       positionVector = this.getCoordinatesAt(posOnOrbit)
     }
-    const velocity = getInstantVelocity(posOnOrbit, positionVector)
-    return (new THREE.Vector3(0,0,1)).cross(new THREE.Vector3(positionVector.x,0,positionVector.z)).normalize().multiplyScalar(velocity)
+    const velocity = this.getInstantVelocity(posOnOrbit, positionVector )
+    const velVector = (new THREE.Vector3(0,1,0)).cross(new THREE.Vector3(positionVector.x,0,positionVector.z)).normalize().multiplyScalar(velocity)
+    console.log("EllipticOrbit.getInstantVelocityVector() = ", velVector, " (velocity=",velocity,")")
+    return velVector
   }
 
   /** Creates EllipticOrbit from planet data

@@ -93,6 +93,7 @@ export class KeplerOrbit extends AbstractOrbit{
    * Expects o.orbitCenter.standardGravitationalParameter
    */
   static fromOrbiterData(o, orbitCenter){
+    console.log("KeplerOrbit.fromOrbiterData(), o=", o)
     return new KeplerOrbit(
       o.epoch,
       o.orbitalPeriod,
