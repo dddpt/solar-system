@@ -11,7 +11,7 @@ export class PlanetArtist extends AnimatedSpaceObject{
 }
 
 export class ColoredSphere extends PlanetArtist{
-  constructor(auRadius, color, scaleMagnifier = 1200){
+  constructor(auRadius, color, scaleMagnifier = 100){
     super()
 
     this.nbSphereSegments = radiusToThreeSphereNbSegments(auRadius)
@@ -32,7 +32,7 @@ export class ColoredSphere extends PlanetArtist{
    * 
    * Expects a o.meanRadius and o.color
    */
-  static fromData(o, scaleMagnifier=1200){
+  static fromData(o, scaleMagnifier=100){
     return new ColoredSphere(
       o.meanRadius,
       o.color,

@@ -135,6 +135,7 @@ scene.add(di)*/
 //addAxesHelper(jupiter.orbit.object3d)
 addAxesHelper(pa1.object3d)
 addAxesHelper(pa2.object3d)
+addAxesHelper(kos.bodies["Earth"].orbit.mobile)
 
 console.log("launching...")
 // END DEBUGGING
@@ -144,14 +145,16 @@ let lastPrintTS = 0
 let maxSimulTimestampReached = false
 let lastTimestamp = false
 let currentSimulTimestamp = +epochs.J2000
+let animCount = 0
 function animate(timestamp) {
+  animCount++
   //timestamp is a milliseconds timestamp since beginning of the animation, differences between 2 timestamps: usually around 16.66 milliseconds (60fps)
   if(timestamp>config.maxSimulTimestamp && !maxSimulTimestampReached){
     timestamp = config.maxSimulTimestamp
     maxSimulTimestampReached = true
     console.log("timestamp>maxSimulTimestamp!!")
   }
-  if(timestamp<=config.maxSimulTimestamp){
+  if(timestamp<=config.maxSimulTimestamp && animCount<=1000000000000){
     const deltaT = (timestamp-lastTimestamp)
     const simulDeltaT = deltaT * config.simulSecPerRealSec
     currentSimulTimestamp += simulDeltaT
