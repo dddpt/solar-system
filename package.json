@@ -15,14 +15,14 @@
     "babel-loader": "^7.1.5",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
-    "webpack": "^4.41.4",
-    "webpack-cli": "^3.3.10"
+    "webpack": "^4.46.0",
+    "webpack-cli": "^3.3.12"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "lodash": "^4.17.15",
-    "promise-polyfill": "^8.1.0",
-    "three": "^0.113.2",
-    "whatwg-fetch": "^3.0.0"
+    "lodash": "^4.17.21",
+    "promise-polyfill": "^8.2.0",
+    "three": "^0.132.2",
+    "whatwg-fetch": "^3.6.2"
   }
 }
