@@ -22,7 +22,7 @@
     "babel-polyfill": "^6.26.0",
     "lodash": "^4.17.21",
     "promise-polyfill": "^8.2.0",
-    "three": "^0.132.2",
+    "three": "^0.137.0",
     "whatwg-fetch": "^3.6.2"
   }
 }
