@@ -1,7 +1,20 @@
 
 
 
+# Notes 2025
 
+## todolist
+
+- switch to ts
+- improve software architecture
+    - more flexible time handling
+    - clear separation of computation and artistry
+
+## switch to TypeScript
+
+following https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html
+
+# Notes pre2025
 
 Software architecture
 =======================

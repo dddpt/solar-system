@@ -43,12 +43,12 @@ function resetCameraPosition(){
   camera.position.z = 8;
   camera.lookAt(0,0,0)
 }
-let cameraLSposition = localStorage.getItem("camera-position")
+const cameraLSposition = localStorage.getItem("camera-position")
 if(cameraLSposition){
-  cameraLSposition = JSON.parse(cameraLSposition)
-  camera.position.x = cameraLSposition.x
-  camera.position.y = cameraLSposition.y
-  camera.position.z = cameraLSposition.z
+  const cameraLSpositionv:THREE.Vector3 = JSON.parse(cameraLSposition)
+  camera.position.x = cameraLSpositionv.x
+  camera.position.y = cameraLSpositionv.y
+  camera.position.z = cameraLSpositionv.z
 }else{
   resetCameraPosition()
 }
@@ -64,8 +64,8 @@ scene.add(light);
 let text2 = document.createElement('div');
 text2.style.position = 'absolute';
 //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
-text2.style.width = 100;
-text2.style.height = 100;
+text2.style.width = `${100}`;
+text2.style.height = `${100}`;
 //text2.style.backgroundColor = "blue";
 text2.style.color = "white";
 text2.innerHTML = "hi there!";
@@ -93,11 +93,17 @@ const anb2 = new AnimatedNewtonianBody(nb2)
 anb1.add(pa1)
 anb2.add(pa2)
 const ags = new AnimatedGravitationalSystem(epochs.J2000, [anb1, anb2])
+//@ts-ignore
 window.nb1=nb1
+//@ts-ignore
 window.nb1=nb2
+//@ts-ignore
 window.anb1=nb1
+//@ts-ignore
 window.anb1=nb2
+//@ts-ignore
 window.pa1=pa1
+//@ts-ignore
 window.pa2=pa2
 // Initialize orbital system
 ags.initAnimation(epochs.J2000)
@@ -143,10 +149,10 @@ console.log("launching...")
 // animate!!
 let lastPrintTS = 0
 let maxSimulTimestampReached = false
-let lastTimestamp = false
+let lastTimestamp = 0
 let currentSimulTimestamp = +epochs.J2000
 let animCount = 0
-function animate(timestamp) {
+function animate(timestamp:number) {
   animCount++
   //timestamp is a milliseconds timestamp since beginning of the animation, differences between 2 timestamps: usually around 16.66 milliseconds (60fps)
   if(timestamp>config.maxSimulTimestamp && !maxSimulTimestampReached){
@@ -162,7 +168,7 @@ function animate(timestamp) {
     kos.animate(currentSimulTimestamp)
     if((timestamp>lastPrintTS+config.debugLogInterval) || maxSimulTimestampReached){
       lastPrintTS=timestamp
-      text2.innerHTML = new Date(currentSimulTimestamp)
+      text2.innerHTML = ""+new Date(currentSimulTimestamp)
     }
     if((timestamp%config.textUpdateInterval)<30 || maxSimulTimestampReached){
       lastPrintTS=timestamp
@@ -177,18 +183,32 @@ function animate(timestamp) {
 }
 requestAnimationFrame( animate );
 
+//@ts-ignore
 window.planets = planets
 planets.forEach(p=>window[p.name.toLowerCase()] = p)
+//@ts-ignore
 window.kos = kos
+//@ts-ignore
 window.ags = ags
+//@ts-ignore
 window.scene = scene
+//@ts-ignore
 window.sun = sun
+//@ts-ignore
 window.yr = yr
+//@ts-ignore
 window.km = km
+//@ts-ignore
 window.msec = msec
+//@ts-ignore
 window.resetCameraPosition = resetCameraPosition
+//@ts-ignore
 window.astronomicalBodies = astronomicalBodies
+//@ts-ignore
 window.THREE = THREE
+//@ts-ignore
 window.addAxesHelper = addAxesHelper
+//@ts-ignore
 window.units = units
+//@ts-ignore
 window.config=config
