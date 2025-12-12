@@ -1,4 +1,4 @@
-
+import * as THREE from 'three'
 
 /** Animated: has 2 methods relevant for three.js animation: initAnimation() and animate()
  */
@@ -21,6 +21,7 @@ export class Animated{
  * extends Animated
  */
 export class AnimatedSpaceObject extends Animated{
+  object3d: THREE.Object3D
   constructor(object3d){
     super()
     this.object3d = object3d
@@ -32,6 +33,8 @@ export class AnimatedSpaceObject extends Animated{
  * takes care of propagating animate() and initAnimation() to children
  */
 export class AnimatedSpaceObjectsGroup extends AnimatedSpaceObject{
+  mobile: THREE.Object3D
+  children: AnimatedSpaceObject[]
   constructor(object3d){
     super(object3d)
     this.mobile = object3d // by default: no mobile and hence this.mobile = this.object3d
