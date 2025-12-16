@@ -114,10 +114,22 @@ export class ConsoleInterval{
     this.msecInterval = msecInterval
     this.timestamps = {}
   }
-  log(...stuffToLog: any[]){
-    this.timedLog(+(new Date()), ...stuffToLog)
+  debug(...stuffToLog: any[]){
+    this.timedLog((...arr)=>console.debug(...arr),+(new Date()), ...stuffToLog)
   }
-  timedLog(msecTimestamp: number, ...stuffToLog: any[]){
+  error(...stuffToLog: any[]){
+    this.timedLog((...arr)=>console.error(...arr),+(new Date()), ...stuffToLog)
+  }
+  info(...stuffToLog: any[]){
+    this.timedLog((...arr)=>console.info(...arr),+(new Date()), ...stuffToLog)
+  }
+  log(...stuffToLog: any[]){
+    this.timedLog((...arr)=>console.log(...arr),+(new Date()), ...stuffToLog)
+  }
+  warn(...stuffToLog: any[]){
+    this.timedLog((...arr)=>console.warn(...arr),+(new Date()), ...stuffToLog)
+  }
+  timedLog(logMethod: (...stuffToLog: any[])=>any,msecTimestamp: number, ...stuffToLog: any[]){
     if(msecTimestamp===undefined){
       msecTimestamp=+(new Date())
     }
@@ -126,7 +138,7 @@ export class ConsoleInterval{
     //console.log("(!logId in this.timestamps): ", (!(logId in this.timestamps)))
     //console.log("(msecTimestamp>(this.timestamps[logId]+this.msecInterval)): ", (msecTimestamp>(this.timestamps[logId]+this.msecInterval)))
     if((!(logId in this.timestamps)) || (msecTimestamp>(this.timestamps[logId]+this.msecInterval))){
-      console.log(...stuffToLog)
+      logMethod(...stuffToLog)
       this.timestamps[logId] = msecTimestamp
     }
   }
