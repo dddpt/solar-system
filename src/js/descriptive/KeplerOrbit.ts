@@ -6,6 +6,7 @@ import {TiltedOrbitalPlane} from "./OrbitalPlane"
 import { Au, Msec, Rad } from '../core/spatialUnits'
 import { AnimatedSpaceObject } from '../core/SpaceObject'
 import { OrbiterData, SpatialObjectData } from '../data/SolarSystemData'
+import { tconsole } from '../utils'
 
 
 /** KeplerOrbit
@@ -15,6 +16,7 @@ import { OrbiterData, SpatialObjectData } from '../data/SolarSystemData'
 export class KeplerOrbit extends AbstractOrbit{
   orbit: EllipticOrbit;
   plane: TiltedOrbitalPlane;
+  data?: OrbiterData;
   constructor(
     epoch: Date,
     msecOrbitalPeriod: Msec,
@@ -25,10 +27,11 @@ export class KeplerOrbit extends AbstractOrbit{
     radInclination: Rad,
     radLongitudeOfAscendingNode: Rad,
     radArgumentOfPeriapsis: Rad,
-    semiMajorAxisToOrbitRadius:((x:number)=>number)=x=>x
+    semiMajorAxisToOrbitRadius:((x:number)=>number)=x=>x,
+    data?: OrbiterData
   ){
-    super(epoch)
-    this.orbit = new EllipticOrbit(epoch, msecOrbitalPeriod, auSemiMajorAxis, eccentricity, radMeanAnomaly, centerStandardGravitationalParameter , semiMajorAxisToOrbitRadius)
+    super(epoch, data)
+    this.orbit = new EllipticOrbit(epoch, msecOrbitalPeriod, auSemiMajorAxis, eccentricity, radMeanAnomaly, centerStandardGravitationalParameter , semiMajorAxisToOrbitRadius, this.data)
     this.plane = new TiltedOrbitalPlane(radInclination, radLongitudeOfAscendingNode, radArgumentOfPeriapsis)
     this.plane.add(this.orbit)
     this.object3d.add(this.plane.object3d)
@@ -53,12 +56,13 @@ export class KeplerOrbit extends AbstractOrbit{
   remove(...objects: AnimatedSpaceObject[]){
     this.orbit.remove(...objects)
   }
-/** See EllipticOrbit.computeState()
+/** See EllipticOrbit.computeState
  * 
- * Only applies the Kepler orbit's plane's rotations to the vector from EllipticOrbit.computeState()
+ * Only applies the Kepler orbit's plane's rotations to the vector from EllipticOrbit.computeState
    */
-  computeState(msecSimulInterval: Msec, posOnOrbit: number, positionVector?: THREE.Vector3){
+  computeState(msecSimulInterval: Msec, posOnOrbit: number, positionVector: THREE.Vector3|null){
     const tr = this.orbit.computeState(msecSimulInterval, posOnOrbit, positionVector)
+    //console.debug("KO.computeState tr.posOnOrbit", tr.posOnOrbit, "tr.positionVector", tr.positionVector)
     tr.positionVector.applyQuaternion(this.plane.object3d.quaternion)
     return tr
   }
@@ -78,12 +82,12 @@ export class KeplerOrbit extends AbstractOrbit{
   }
 
   /**au/msec */
-  getInstantVelocity(posOnOrbit?: number, positionVector?: THREE.Vector3){
+  getInstantVelocity(posOnOrbit: number|null, positionVector: THREE.Vector3|null){
     return this.orbit.getInstantVelocity(posOnOrbit, positionVector)
   }
 
   /**au/msec */
-  getInstantVelocityVector(posOnOrbit?: number, positionVector?: THREE.Vector3){
+  getInstantVelocityVector(posOnOrbit: number|null, positionVector: THREE.Vector3|null){
     return this.orbit.getInstantVelocityVector(posOnOrbit, positionVector).applyQuaternion(this.plane.object3d.quaternion)
   }
 
@@ -108,7 +112,10 @@ export class KeplerOrbit extends AbstractOrbit{
    * 
    * Expects o.orbitCenter.standardGravitationalParameter
    */
-  static fromData(o: OrbiterData, orbitCenter: SpatialObjectData){
+  static fromData(o: OrbiterData,
+    orbitCenter: SpatialObjectData,
+    semiMajorAxisToOrbitRadius:((x:number)=>number)=x=>x
+  ){
     return new KeplerOrbit(
       o.epoch,
       o.orbitalPeriod,
@@ -118,6 +125,9 @@ export class KeplerOrbit extends AbstractOrbit{
       orbitCenter.standardGravitationalParameter,
       o.inclination,
       o.longitudeOfAscendingNode,
-      o.argumentOfPeriapsis)//, logSemiMajorAxis)
+      o.argumentOfPeriapsis,
+      semiMajorAxisToOrbitRadius,
+      o
+    )//, logSemiMajorAxis)
   }
 }

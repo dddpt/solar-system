@@ -17,6 +17,7 @@ export class EllipticOrbit extends AbstractOrbit{
   meanAnomaly: Rad
   centerStandardGravitationalParameter: number 
   ellipse: Ellipse;
+  data?: OrbiterData;
 
   lastAnimateTimestamp: number;
   currentPosOnOrbit: number;
@@ -28,9 +29,10 @@ export class EllipticOrbit extends AbstractOrbit{
     eccentricity: number,
     radMeanAnomaly: Rad,
     centerStandardGravitationalParameter: number ,
-    semiMajorAxisToOrbitRadius: ((x:number)=>number)=x=>x
+    semiMajorAxisToOrbitRadius: ((x:number)=>number)=x=>x,
+    data?: OrbiterData
   ){
-    super(initDate)
+    super(initDate, data)
 
     this.orbitalPeriod = msecOrbitalPeriod
     this.auSemiMajorAxis = auSemiMajorAxis
@@ -77,13 +79,16 @@ export class EllipticOrbit extends AbstractOrbit{
   animate(msecSimulTimestamp: Msec){
   super.animate(msecSimulTimestamp)
     const msecSimulInterval = msecSimulTimestamp-this.lastAnimateTimestamp
+    tconsole.debug("EO.animate() "+this.data?.name+" this.currentPosOnOrbit", this.currentPosOnOrbit, "this.mobile.position", this.mobile.position.clone())
     const state = this.computeState(msecSimulInterval, this.currentPosOnOrbit, this.mobile.position.clone())
+    tconsole.debug("EO.animate2() "+this.data?.name+" state.posOnOrbit", state.posOnOrbit, "state.positionVector", state.positionVector.clone())
     this.currentPosOnOrbit = state.posOnOrbit
     this.mobile.position.x = state.positionVector.x
     this.mobile.position.z = state.positionVector.z
     this.lastAnimateTimestamp = msecSimulTimestamp
     this.currentSimulTimestamp += msecSimulInterval
-  }
+    //tconsole.debug("EO.animate3() this.currentPosOnOrbit", this.currentPosOnOrbit, "this.mobile.position", this.mobile.position, "lastAnimateTimestamp", this.lastAnimateTimestamp, "this.currentSimulTimestamp", this.currentSimulTimestamp)
+    }
  
   /** compute the state of the Orbit's mobile (position, orientation, etc...) from a position and time interval
   * 
@@ -92,10 +97,12 @@ export class EllipticOrbit extends AbstractOrbit{
   * @param {number} msecSimulInterval time interval (as msec) that for which orbit has to be computed
   * @param {THREE.Vector3} positionVector (optional) coordinates corresponding to posOnOrbit, avoids a call to getCoordinatesAt(posOnOrbit)
   */
-  computeState(msecSimulInterval: Msec, posOnOrbit: number, positionVector?: THREE.Vector3){
-    if(!positionVector){
+  computeState(msecSimulInterval: Msec, posOnOrbit: number, positionVector: THREE.Vector3|null){
+    //tconsole.debug("EO.computeState "+this.data?.name+" msecSimulInterval", msecSimulInterval, "posOnOrbit", posOnOrbit, "positionVector", positionVector)
+    if(positionVector===null){
       positionVector = this.getCoordinatesAt(posOnOrbit)
     }
+    console.debug("EO.computeState() "+this.data?.name+" INITIAL posOnOrbit", posOnOrbit, "positionVector", positionVector.clone())
     let intervalSign = Math.sign(msecSimulInterval)
     msecSimulInterval = Math.abs(msecSimulInterval) % this.orbitalPeriod
     let intervalComputed = 0
@@ -108,9 +115,14 @@ export class EllipticOrbit extends AbstractOrbit{
       posOnOrbit = mod(posOnOrbit+portionOforbitEllapsed, 1)
       intervalComputed += deltaT
       positionVector = this.getCoordinatesAt(posOnOrbit)
+      console.debug("EO.computeState() "+this.data?.name+" COMPUTE posOnOrbit", posOnOrbit, "positionVector", positionVector.clone())
     }
-
-    return {posOnOrbit, positionVector}
+    //tconsole.debug("EO.computeState "+this.data?.name+" end posOnOrbit", posOnOrbit, "positionVector", positionVector)
+    const tr = {posOnOrbit: posOnOrbit, positionVector: positionVector}
+    tr.positionVector.y=0
+    //tconsole.debug("EO.computeState "+this.data?.name+" end tr", tr)
+    //tconsole.debug("KKEO.computeState "+this.data?.name+" tr.posOnOrbit", tr.posOnOrbit, "tr.positionVector", tr.positionVector)
+    return tr
   }
 
   /** compute the state of the Orbit's mobile (position, orientation, etc...) from a date
@@ -119,19 +131,21 @@ export class EllipticOrbit extends AbstractOrbit{
   * @param {Date} date fixed date at which to compute state
   */
   computeStateAtDate(date: Date=this.initDate){
+    //tconsole.debug("EO.computeStateAtDate() "+this.data?.name)
     // if date: compute from initial date&position
     const msecSimulInterval = (+date) - (+this.initDate)
     const initPosOnOrbit = this.initPosOnOrbit()
-    return this.computeState(msecSimulInterval, initPosOnOrbit)
+    return this.computeState(msecSimulInterval, initPosOnOrbit, null)
   }
 
   getCoordinatesAt(u: number): THREE.Vector3{
-    //@ts-ignore
-    const pos: THREE.Vector3 = this.ellipse.curve.getPointAt(u, new THREE.Vector3())
-    pos.x = pos.x - this.ellipse.focus1.x
-    pos.z = -pos.y
-    pos.y = null
-    return pos
+    const pos: THREE.Vector2 = this.ellipse.curve.getPointAt(u)
+    const newPos = new THREE.Vector3()
+    newPos.x = pos.x - this.ellipse.focus1.x
+    newPos.z = -pos.y
+    newPos.y = null
+    console.debug("EO.getCoordinatesAt() "+this.data?.name+" pos", pos, "newPos", newPos.clone())
+    return newPos
     /*const pos = this.ellipse.curve.getPointAt(u)
     const result = new THREE.Vector3();
     result.x = pos.x - this.ellipse.focus1.x
@@ -149,29 +163,31 @@ export class EllipticOrbit extends AbstractOrbit{
   }
 
   /**au/msec */
-  getInstantVelocity(posOnOrbit?: number, positionVector?: THREE.Vector3){
-    if(positionVector===undefined && posOnOrbit===undefined){
+  getInstantVelocity(posOnOrbit: number|null, positionVector: THREE.Vector3|null): number{
+    if(positionVector===null && posOnOrbit===null){
       positionVector = this.mobile.position
     }
-    if(positionVector===undefined){
+    if(positionVector===null){
       positionVector = this.getCoordinatesAt(posOnOrbit)
     }
     const r = Math.sqrt(positionVector.x**2 + positionVector.z**2)
-    return Math.sqrt(this.centerStandardGravitationalParameter*(2/r - 1/this.semiMajorAxis)) / sec
+    const velocity = Math.sqrt(this.centerStandardGravitationalParameter*(2/r - 1/this.semiMajorAxis)) / sec
+    //tconsole.log("EllOrbit.GETINSTANTVELOCITY() "+this.data?.name+": velocity", velocity, "r", r, "positionVector.x", positionVector.x, "positionVector.z", positionVector.z)
+    return velocity
   }
 
   /**au/msec */
-  getInstantVelocityVector(posOnOrbit?: number, positionVector?: THREE.Vector3){
-    if(positionVector===undefined && posOnOrbit===undefined){
+  getInstantVelocityVector(posOnOrbit: number|null, positionVector: THREE.Vector3|null){
+    if(positionVector===null && posOnOrbit===null){
       positionVector = this.mobile.position
     }
-    if(positionVector===undefined){
+    if(positionVector===null){
       positionVector = this.getCoordinatesAt(posOnOrbit)
     }
     const pv = positionVector.clone()
     const velocity = this.getInstantVelocity(posOnOrbit, positionVector )
     const velVector = (new THREE.Vector3(0,1,0)).cross(new THREE.Vector3(positionVector.x,0,positionVector.z)).normalize().multiplyScalar(velocity)
-    tconsole.log("EllOrbit.getInstantVelocityVector(): pv", pv, "velocity", velocity, "velVector", velVector)
+    //tconsole.log("EllOrbit.getInstantVelocityVector(): pv", pv, "velocity", velocity, "velVector", velVector)
     return velVector
   }
 
@@ -179,14 +195,18 @@ export class EllipticOrbit extends AbstractOrbit{
   * 
   * Expects o.orbitCenter.standardGravitationalParameter
   */
-  static fromData(o: OrbiterData, orbitCenter: SpatialObjectData){
+  static fromData(o: OrbiterData, orbitCenter: SpatialObjectData,
+    semiMajorAxisToOrbitRadius:((x:number)=>number)=x=>x){
     return new EllipticOrbit(
       o.epoch,
       o.orbitalPeriod,
       o.semiMajorAxis,
       o.eccentricity,
       o.meanAnomaly,
-      orbitCenter.standardGravitationalParameter)
+      orbitCenter.standardGravitationalParameter,
+      semiMajorAxisToOrbitRadius,
+      o
+    )
   }
  }
  
