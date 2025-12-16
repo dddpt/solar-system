@@ -51,7 +51,7 @@ export class Ellipse{
     const fociDist = Math.sqrt(a**2 - b**2)
     this.focus1 = new THREE.Vector2(fociDist, 0)
     this.focus2 = new THREE.Vector2(-fociDist, 0)
-    this.curve = new THREE.EllipseCurve(0,0,a,b,0,0,false, 0)
+    this.curve = new THREE.EllipseCurve(0,0,a,b,undefined, undefined, undefined, undefined)
     const h = (a - b)**2 / (a + b)**2
     this.circumference = Math.PI * (a+b) * (1 + 3*h / (10 + Math.sqrt(4-3*h))) 
   }
