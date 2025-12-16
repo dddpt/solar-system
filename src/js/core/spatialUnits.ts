@@ -41,10 +41,11 @@ export const time = {
 
 // ======================== Mass ======================== 
 // converts any mass to kg mass by multiplying it by the appropriate unit
-export type Gram = number
-export type Kg = number
-export type Ton = number
-export type Kiloton = number
+export type Mass = number
+export type Gram = Mass
+export type Kg = Mass
+export type Ton = Mass
+export type Kiloton = Mass
 
 export const gram: Kg = 1000;
 export const kg: Kg = 1;

@@ -1,16 +1,23 @@
 import * as THREE from 'three'
 
-import { mercury } from "./data/SolarSystemData.js"
-import { AnimatedSpaceObject } from './core/SpaceObject.js'
+import { mercury, OrbiterData, SpatialObjectData } from "./data/SolarSystemData"
+import { AnimatedSpaceObject } from './core/SpaceObject'
+import { Msec } from './core/spatialUnits'
 
 
 export class PlanetArtist extends AnimatedSpaceObject{
   constructor(){
     super(new THREE.Object3D())
   }
+  initAnimation(newDate: Date){}
+  animate(msecSimulTimestamp: Msec){}
 }
 
 export class ColoredSphere extends PlanetArtist{
+  nbSphereSegments: number;
+  geometry: THREE.SphereBufferGeometry;
+  material: THREE.MeshToonMaterial;
+  object3d: THREE.Mesh
   constructor(auRadius, color, scaleMagnifier = 100){
     super()
 
@@ -21,18 +28,16 @@ export class ColoredSphere extends PlanetArtist{
     this.object3d.scale.set(scaleMagnifier, scaleMagnifier, scaleMagnifier)
   }
   /** does nothing */
-  initAnimation(newDate){
-  }
+  initAnimation(newDate: Date){}
 
   /** does nothing */
-  animate(secSimulTimestamp){
-  }
+  animate(msecSimulTimestamp:Msec){}
 
   /** Creates ColoredSphere from planet data
    * 
    * Expects a o.meanRadius and o.color
    */
-  static fromData(o, scaleMagnifier=100){
+  static fromData(o: SpatialObjectData, scaleMagnifier=100){
     return new ColoredSphere(
       o.meanRadius,
       o.color,

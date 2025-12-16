@@ -2,7 +2,9 @@
 
 import * as THREE from 'three'
 
-import { AnimatedSpaceObjectsGroup } from '../core/SpaceObject.js'
+import { AnimatedSpaceObjectsGroup } from '../core/SpaceObject'
+import { OrbiterData } from '../data/SolarSystemData'
+import { Msec, Rad } from '../core/spatialUnits'
 
 export class OrbitalPlane extends AnimatedSpaceObjectsGroup{
   constructor(){
@@ -10,7 +12,7 @@ export class OrbitalPlane extends AnimatedSpaceObjectsGroup{
   }
   
   /**ABSTRACT */
-  static fromData(o){
+  static fromData(o: OrbiterData){
     throw "OrbitalPlane.fromData(): abstract method called"
   }
 }
@@ -21,6 +23,10 @@ export class OrbitalPlane extends AnimatedSpaceObjectsGroup{
  * Orients periapsis on the TiltedOrbitalPlane's X axis
 */
 export class TiltedOrbitalPlane extends OrbitalPlane{
+  longitudeOfAscendingNode: Rad;
+  inclination: Rad;
+  argumentOfPeriapsis: Rad;
+
   constructor(radInclination, radLongitudeOfAscendingNode, radArgumentOfPeriapsis){
     super()
     this.longitudeOfAscendingNode = radLongitudeOfAscendingNode
@@ -31,17 +37,17 @@ export class TiltedOrbitalPlane extends OrbitalPlane{
     this.object3d.rotateY(this.argumentOfPeriapsis)
   }
   /** does nothing */
-  initAnimation(newDate){
+  initAnimation(newDate: Date){
   }
   /** does nothing */
-  animate(msecSimulTimestamp){
+  animate(msecSimulTimestamp: Msec){
   }
 
   /** Creates TiltedOrbitalPlane from planet data
    * 
    * Expects a o.object3d
    */
-  static fromData(o){
+  static fromData(o: OrbiterData){
     return new TiltedOrbitalPlane(
       o.inclination,
       o.longitudeOfAscendingNode,

@@ -1,22 +1,23 @@
 
 import * as THREE from 'three'
+import { Au, Msec, Rad } from './core/spatialUnits';
 
 /** Proper modulo (JS modulo doesn't handle negative values properly) */
-export function mod(a, base){
+export function mod(a: number, base: number): number{
   let mod = a % base
   return mod<0? mod+base : mod
 }
 
 /** addAxesHelper: adds visual axes at the center of the given object3d, very useful for initial testing*/
-export function addAxesHelper(node){
+export function addAxesHelper(node: THREE.Object3D): void{
   const axes = new THREE.AxesHelper();
-  axes.material.depthTest = false;
+  //axes.material.depthTest = false;
   axes.renderOrder = 1;
   node.add(axes);
 }
 
 /** Responsive design: resizes the canvas upon window resize & handles camera aspect ratio*/
-export function resizeRendererToDisplaySize(renderer, camera) {
+export function resizeRendererToDisplaySize(renderer:THREE.WebGLRenderer, camera: THREE.PerspectiveCamera) {
   const canvas = renderer.domElement;
   const width = canvas.clientWidth;
   const height = canvas.clientHeight;
@@ -33,28 +34,34 @@ export function resizeRendererToDisplaySize(renderer, camera) {
  * 
  * eccentricity takes precedence over semiMinorAxis (if eccentricity falsy, semiMinorAxis is used)
  */
-export function ellipse(semiMajorAxis, eccentricity, semiMinorAxis=null){
-  const a = semiMajorAxis
-  const b = eccentricity? semiMajorAxis * Math.sqrt(1-eccentricity**2) : semiMinorAxis
-  const e = {
-    semiMajorAxis: a,
-    semiMinorAxis: b,
-    eccentricity: eccentricity? eccentricity : Math.sqrt(1-(semiMinorAxis/semiMajorAxis)**2)
+export class Ellipse{
+  semiMajorAxis: number;
+  semiMinorAxis: number;
+  eccentricity: number;
+  focus1: THREE.Vector2;
+  focus2: THREE.Vector2;
+  curve: THREE.EllipseCurve;
+  circumference: number;
+  constructor(semiMajorAxis: number, eccentricity: number, semiMinorAxis?: number){
+    const a = semiMajorAxis
+    const b = eccentricity? semiMajorAxis * Math.sqrt(1-eccentricity**2) : semiMinorAxis
+    this.semiMajorAxis = a
+    this.semiMinorAxis = b
+    this.eccentricity = eccentricity? eccentricity : Math.sqrt(1-(semiMinorAxis/semiMajorAxis)**2)
+    const fociDist = Math.sqrt(a**2 - b**2)
+    this.focus1 = new THREE.Vector2(fociDist, 0)
+    this.focus2 = new THREE.Vector2(-fociDist, 0)
+    this.curve = new THREE.EllipseCurve(0,0,a,b,0,0,false, 0)
+    const h = (a - b)**2 / (a + b)**2
+    this.circumference = Math.PI * (a+b) * (1 + 3*h / (10 + Math.sqrt(4-3*h))) 
   }
-  const fociDist = Math.sqrt(a**2 - b**2)
-  e.focus1 = new THREE.Vector2(fociDist, 0)
-  e.focus2 = new THREE.Vector2(-fociDist, 0)
-  e.curve = new THREE.EllipseCurve(0,0,a,b)
-  const h = (a - b)**2 / (a + b)**2
-  e.circumference = Math.PI * (a+b) * (1 + 3*h / (10 + Math.sqrt(4-3*h)))
-  return e 
 }
 
 /** Computes the eccentric anomaly from the mean anomaly using Newton's method
  * 
  * based on https://en.wikipedia.org/wiki/Kepler%27s_equation#Numerical_approximation_of_inverse_problem
  */
-export function eccentricAnomalyNewtonsMethod(radMeanAnomaly, eccentricity, tolerance=0.0000001, maxNbIteration=1000){
+export function eccentricAnomalyNewtonsMethod(radMeanAnomaly: Rad, eccentricity: number, tolerance: number=0.0000001, maxNbIteration: number=1000){
   if(eccentricity==1){
     throw "utils eccentricAnomalyNewtonsMethod(): not working for eccentricity=1"
   } else{
@@ -76,7 +83,14 @@ export function eccentricAnomalyNewtonsMethod(radMeanAnomaly, eccentricity, tole
  * 
  * f() is supposed to be monotonous growing between argMin and argMax
 */
-export function binarySearch(f, argMin, argMax, target, tolerance=0.001, maxNbIteration=1000){
+export function binarySearch(
+  f: (x: number)=>number,
+  argMin: number,
+  argMax: number,
+  target: number,
+  tolerance: number=0.001,
+  maxNbIteration: number=1000
+){
   let middle = argMin + (argMax-argMin)/2
   let diff = f(middle)-target
   let i=0
@@ -94,11 +108,19 @@ export function binarySearch(f, argMin, argMax, target, tolerance=0.001, maxNbIt
 }
 
 export class ConsoleInterval{
+  msecInterval: Msec;
+  timestamps: {}
   constructor(msecInterval){
     this.msecInterval = msecInterval
     this.timestamps = {}
   }
-  log(msecTimestamp, ...stuffToLog){
+  log(...stuffToLog: any[]){
+    this.timedLog(+(new Date()), ...stuffToLog)
+  }
+  timedLog(msecTimestamp: number, ...stuffToLog: any[]){
+    if(msecTimestamp===undefined){
+      msecTimestamp=+(new Date())
+    }
     const logId = stuffToLog[0]
     //console.log("ConsoleInterval.log() msecTimestamp:", msecTimestamp, ", logId:", logId, ", stuffToLog: ",stuffToLog, ", this.timestamps: ",this.timestamps)
     //console.log("(!logId in this.timestamps): ", (!(logId in this.timestamps)))
@@ -109,3 +131,6 @@ export class ConsoleInterval{
     }
   }
 }
+
+
+export const tconsole = new ConsoleInterval(1500)

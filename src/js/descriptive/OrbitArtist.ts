@@ -1,20 +1,31 @@
 import * as THREE from 'three'
+import { AbstractOrbit } from './AbstractOrbit'
+import { Msec } from '../core/spatialUnits'
 
 
 export class OrbitArtist{
+  object3d: THREE.Object3D
   constructor(){
     this.object3d = new THREE.Object3D()
   }
 }
 
 export class EclipticOrthogonalsOrbitArtist{
+    orbit: AbstractOrbit
+    orthoInterval: Msec
+    segmentsInterval: Msec
+    color: number;
+
+    object3d = new THREE.Group()
+    orthogonals = []
+    orbitEllipse = null;
   /**
    * 
    * @param {*} orbit an Orbit object with computeState() method
    * @param {*} msecOrthoInterval msec interval at which orthogonals must be drawn
    * @param {*} msecSegmentsInterval msec interval at which segments are to be drawn
    */
-  constructor(orbit, msecOrthoInterval, msecSegmentsInterval, color=0x222222){
+  constructor(orbit: AbstractOrbit, msecOrthoInterval: Msec, msecSegmentsInterval: Msec, color: number=0x222222){
     this.orbit = orbit
     this.orthoInterval = msecOrthoInterval
     this.segmentsInterval = msecSegmentsInterval

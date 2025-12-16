@@ -1,10 +1,30 @@
-import { km, m, au, d, deg, kg } from "../core/spatialUnits";
+import { km, m, au, Au, d, D, deg, Rad, kg, Kg } from "../core/spatialUnits";
 
 export const epochs = {
   J2000: new Date(2000, 0, 1, 12)
 }
 
-export const sun = {
+export interface SpatialObjectData {
+  name: string;
+  standardGravitationalParameter: number;
+  meanRadius: Au;
+  mass: Kg;
+  color: number;
+  three: any;
+}
+export interface OrbiterData extends SpatialObjectData {
+  orbitCenterName: string;
+  epoch: Date;
+  semiMajorAxis: Au;
+  eccentricity: number;
+  orbitalPeriod: D;
+  meanAnomaly: Rad;
+  longitudeOfAscendingNode: Rad;
+  inclination: Rad;
+  argumentOfPeriapsis: Rad;
+}
+
+export const sun: SpatialObjectData = {
   name: "Sun",
   standardGravitationalParameter: 1.32712440018*(10**20)*m**3,
   meanRadius: 696342*km,
@@ -12,7 +32,7 @@ export const sun = {
   color: 0xffff66,
   three: {}
 }
-export const mercury = {
+export const mercury: OrbiterData = {
   name: "Mercury",
   orbitCenterName: "Sun",
   standardGravitationalParameter: 2.2032*(10**13)*m**3,
@@ -29,7 +49,7 @@ export const mercury = {
   color: 0xb3b3b3,
   three: {}
 }
-export const venus = {
+export const venus: OrbiterData = {
   name: "Venus",
   orbitCenterName: "Sun",
   standardGravitationalParameter: 3.24859*(10**14)*m**3,
@@ -46,7 +66,7 @@ export const venus = {
   color: 0xffcc99,
   three: {}
 }
-export const earth = {
+export const earth: OrbiterData = {
   name: "Earth",
   orbitCenterName: "Sun",
   standardGravitationalParameter: 3.986004418*(10**14)*m**3,
@@ -63,7 +83,7 @@ export const earth = {
   color: 0x0000ff,
   three: {}
 }
-export const mars = {
+export const mars: OrbiterData = {
   name: "Mars",
   orbitCenterName: "Sun",
   standardGravitationalParameter: 4.282837*(10**13)*m**3,
@@ -80,7 +100,7 @@ export const mars = {
   color: 0xff8533,
   three: {}
 }
-export const jupiter = {
+export const jupiter: OrbiterData = {
   name: "Jupiter",
   orbitCenterName: "Sun",
   standardGravitationalParameter: 1.26686534*(10**17)*m**3,
@@ -97,7 +117,7 @@ export const jupiter = {
   color: 0xffe6b3,
   three: {}
 }
-export const saturn = {
+export const saturn: OrbiterData = {
   name: "Saturn",
   orbitCenterName: "Sun",
   standardGravitationalParameter: 3.7931187*(10**16)*m**3,
@@ -114,7 +134,7 @@ export const saturn = {
   color: 0xd6d6c2,
   three: {}
 }
-export const uranus = {
+export const uranus: OrbiterData = {
   name: "Uranus",
   orbitCenterName: "Sun",
   standardGravitationalParameter: 5.793939*(10**15)*m**3,
@@ -131,7 +151,7 @@ export const uranus = {
   color: 0xadebeb,
   three: {}
 }
-export const neptune = {
+export const neptune: OrbiterData = {
   name: "Neptune",
   orbitCenterName: "Sun",
   standardGravitationalParameter: 6.836529*(10**15)*m**3,
@@ -148,7 +168,7 @@ export const neptune = {
   color: 0x7094db,
   three: {}
 }
-export const pluto = {
+export const pluto: OrbiterData = {
   name: "Pluto",
   orbitCenterName: "Sun",
   standardGravitationalParameter: 8.71*(10**11)*m**3,
@@ -169,11 +189,22 @@ export const planets = [
   mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, pluto
 ]
 
-export const astronomicalBodies = [sun].concat(planets)
-//astronomicalBodies.forEach(p => {if(p.orbitCenterName){p.orbitCenter = astronomicalBodies.find(b=>b.name==p.orbitCenterName)}})
-astronomicalBodies.get = function(aName){return this.find(a=>a.name.toLowerCase()==aName.toLowerCase())}
-astronomicalBodies.getOrbiters = function(ocName){
-  const ocname = ocName.toLowerCase()
-  return this.filter(a=>a.orbitCenterName.toLowerCase()==ocname)
+export class SystemData{
+  bodies: SpatialObjectData[]
+  constructor(bodies: SpatialObjectData[]){
+    this.bodies = bodies
+  }
+  get(aName:string): SpatialObjectData{
+    return this.bodies.find(a=>a.name.toLowerCase()==aName.toLowerCase())
+  }
+  getOrbiters(ocName: string): OrbiterData[]{
+    const ocname = ocName.toLowerCase()
+    return this.bodies
+      .filter(a=> "orbitCenterName" in a)
+      .map(a=> a as OrbiterData)
+      .filter(a=> a.orbitCenterName.toLowerCase()==ocname)
+  }
 }
 
+export const astronomicalBodies = new SystemData([sun].concat(planets))
+//astronomicalBodies.forEach(p => {if(p.orbitCenterName){p.orbitCenter = astronomicalBodies.find(b=>b.name==p.orbitCenterName)}})

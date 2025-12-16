@@ -1,28 +1,42 @@
 import * as THREE from 'three'
 
-import { AnimatedSpaceObjectsGroup } from "../core/SpaceObject";
+import { AnimatedSpaceObject, AnimatedSpaceObjectsGroup } from "../core/SpaceObject";
+import { OrbiterData, SpatialObjectData } from '../data/SolarSystemData';
+import { AbstractOrbit } from './AbstractOrbit';
 
+export interface DescriptiveOrbitalSystemElement{
+  data: SpatialObjectData
+  artist: AnimatedSpaceObject
+
+}
+
+export interface DescriptiveOrbitalSystemOrbiter extends DescriptiveOrbitalSystemElement{
+  data: OrbiterData
+  orbit: AbstractOrbit
+}
 
 
 export class DescriptiveOrbitalSystem extends AnimatedSpaceObjectsGroup{
-  constructor(centerData, orbitersData, orbitClass, OrbiterArtistClass){
+  center: DescriptiveOrbitalSystemElement
+  bodies: { [key: string]: DescriptiveOrbitalSystemElement};
+  orbiters: DescriptiveOrbitalSystemOrbiter[];
+
+  constructor(centerData: SpatialObjectData, orbitersData: OrbiterData[], orbitClass: any, OrbiterArtistClass: any){
     super(new THREE.Group())
     const self = this
     this.bodies= {}
     this.center = {
-      data: centerData
+      data: centerData,
+      artist: OrbiterArtistClass.fromData(centerData)
     }
     this.bodies[centerData.name] = this.center
     this.orbiters = orbitersData.map(od=>{
-      const o = {
-        data: od
+      const o: DescriptiveOrbitalSystemOrbiter = {
+        data: od,
+        artist: OrbiterArtistClass.fromData(od),
+        orbit: orbitClass.fromData(od, self.center.data)
       }
-      o.artist = OrbiterArtistClass.fromData(od)
-      //o.object3d = o.artist.object3d
-      o.orbit = orbitClass.fromData(od, self.center.data)
       o.orbit.add(o.artist)
-      //o.orbit.showPath()
-      //addAxesHelper(o.artist.object3d)
       self.add(o.orbit)
       this.bodies[od.name] = o
       return o

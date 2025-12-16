@@ -1,22 +1,23 @@
 import * as THREE from 'three'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 
-import {config} from "./config.js"
-import { CircularOrbit, EllipticOrbit, KeplerOrbit } from './descriptive/Orbit.js'
-import { KeplerOrbitalSystem } from './descriptive/KeplerOrbitalSystem.js'
-import { EclipticOrthogonalsOrbitArtist } from './descriptive/OrbitArtist.js'
-import { ColoredSphere } from "./PlanetArtist.js";
-import {planets, sun, mercury, earth, pluto, astronomicalBodies, epochs, jupiter} from "./data/SolarSystemData.js"
-import {yr, msec, sec, km, time, units} from "./core/spatialUnits.js"
-import {addAxesHelper, resizeRendererToDisplaySize, ellipse} from "./utils.js"
-import { NewtonianBody, AnimatedNewtonianBody } from './newtonian/NewtonianBody.js'
-import { AnimatedGravitationalSystem } from './newtonian/GravitationalSystem.js'
+import {config} from "./config"
+import { CircularOrbit, EllipticOrbit, KeplerOrbit } from './descriptive/Orbit'
+import { KeplerOrbitalSystem } from './descriptive/KeplerOrbitalSystem'
+import { EclipticOrthogonalsOrbitArtist } from './descriptive/OrbitArtist'
+import { ColoredSphere } from "./PlanetArtist";
+import {planets, sun, mercury, earth, pluto, astronomicalBodies, epochs, jupiter} from "./data/SolarSystemData"
+import {yr, msec, sec, km, time, units} from "./core/spatialUnits"
+import {addAxesHelper, resizeRendererToDisplaySize} from "./utils"
+import { NewtonianBody, AnimatedNewtonianBody } from './newtonian/NewtonianBody'
+import { AnimatedGravitationalSystem } from './newtonian/GravitationalSystem'
+import { DescriptiveOrbitalSystemOrbiter } from './descriptive/DescriptiveOrbitalSystem'
  
 // create scene, camera and renderer
 const scene = new THREE.Scene();
 
 //create renderer
-const canvas = document.querySelector('#threejs_canvas');
+const canvas = document.querySelector('#threejs_canvas') as HTMLElement;
 const renderer = new THREE.WebGLRenderer({canvas});
 
 //create camera with controls
@@ -141,7 +142,7 @@ scene.add(di)*/
 //addAxesHelper(jupiter.orbit.object3d)
 addAxesHelper(pa1.object3d)
 addAxesHelper(pa2.object3d)
-addAxesHelper(kos.bodies["Earth"].orbit.mobile)
+addAxesHelper((kos.bodies["Earth"] as DescriptiveOrbitalSystemOrbiter).orbit.mobile)
 
 console.log("launching...")
 // END DEBUGGING
@@ -189,11 +190,15 @@ planets.forEach(p=>window[p.name.toLowerCase()] = p)
 //@ts-ignore
 window.kos = kos
 //@ts-ignore
+window.kearth = kos.bodies["Earth"]
+//@ts-ignore
 window.ags = ags
 //@ts-ignore
 window.scene = scene
 //@ts-ignore
 window.sun = sun
+//@ts-ignore
+window.nbearth = nb2
 //@ts-ignore
 window.yr = yr
 //@ts-ignore

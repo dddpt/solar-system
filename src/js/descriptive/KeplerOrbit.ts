@@ -1,8 +1,11 @@
 import * as THREE from 'three'
 
-import {AbstractOrbit} from "./AbstractOrbit.js"
-import {EllipticOrbit} from "./EllipticOrbit.js"
-import {TiltedOrbitalPlane} from "./OrbitalPlane.js"
+import {AbstractOrbit} from "./AbstractOrbit"
+import {EllipticOrbit} from "./EllipticOrbit"
+import {TiltedOrbitalPlane} from "./OrbitalPlane"
+import { Au, Msec, Rad } from '../core/spatialUnits'
+import { AnimatedSpaceObject } from '../core/SpaceObject'
+import { OrbiterData, SpatialObjectData } from '../data/SolarSystemData'
 
 
 /** KeplerOrbit
@@ -10,8 +13,21 @@ import {TiltedOrbitalPlane} from "./OrbitalPlane.js"
  * Combines TiltedOrbitalPlane and EllipticOrbit together to form a proper Kepler Orbit
 */
 export class KeplerOrbit extends AbstractOrbit{
-  constructor(epoch, msecOrbitalPeriod, auSemiMajorAxis, eccentricity, radMeanAnomaly, centerStandardGravitationalParameter, radInclination, radLongitudeOfAscendingNode, radArgumentOfPeriapsis, semiMajorAxisToOrbitRadius=x=>x){
-    super()
+  orbit: EllipticOrbit;
+  plane: TiltedOrbitalPlane;
+  constructor(
+    epoch: Date,
+    msecOrbitalPeriod: Msec,
+    auSemiMajorAxis: Au,
+    eccentricity: number,
+    radMeanAnomaly: Rad,
+    centerStandardGravitationalParameter: number,
+    radInclination: Rad,
+    radLongitudeOfAscendingNode: Rad,
+    radArgumentOfPeriapsis: Rad,
+    semiMajorAxisToOrbitRadius:((x:number)=>number)=x=>x
+  ){
+    super(epoch)
     this.orbit = new EllipticOrbit(epoch, msecOrbitalPeriod, auSemiMajorAxis, eccentricity, radMeanAnomaly, centerStandardGravitationalParameter , semiMajorAxisToOrbitRadius)
     this.plane = new TiltedOrbitalPlane(radInclination, radLongitudeOfAscendingNode, radArgumentOfPeriapsis)
     this.plane.add(this.orbit)
@@ -20,28 +36,28 @@ export class KeplerOrbit extends AbstractOrbit{
   }
 
   /** */
-  initAnimation(newDate=this.orbit.initDate){
+  initAnimation(newDate: Date=this.orbit.initDate){
     this.orbit.initAnimation(newDate)
   }
 
   /** */
-  animate(msecSimulTimestamp){
+  animate(msecSimulTimestamp: Msec){
     this.orbit.animate(msecSimulTimestamp)
   }
 
   /** */
-  add(...objects){
+  add(...objects: AnimatedSpaceObject[]){
     this.orbit.add(...objects)
   }
   /** */
-  remove(...objects){
+  remove(...objects: AnimatedSpaceObject[]){
     this.orbit.remove(...objects)
   }
 /** See EllipticOrbit.computeState()
  * 
  * Only applies the Kepler orbit's plane's rotations to the vector from EllipticOrbit.computeState()
    */
-  computeState(msecSimulInterval, posOnOrbit, positionVector = null){
+  computeState(msecSimulInterval: Msec, posOnOrbit: number, positionVector?: THREE.Vector3){
     const tr = this.orbit.computeState(msecSimulInterval, posOnOrbit, positionVector)
     tr.positionVector.applyQuaternion(this.plane.object3d.quaternion)
     return tr
@@ -51,7 +67,7 @@ export class KeplerOrbit extends AbstractOrbit{
    * 
    * @param {Date} date fixed date at which to compute state
    */
-  computeStateAtDate(date=this.orbit.initDate){
+  computeStateAtDate(date: Date=this.orbit.initDate){
     const tr = this.orbit.computeStateAtDate(date)
     tr.positionVector.applyQuaternion(this.plane.object3d.quaternion)
     return tr
@@ -62,17 +78,17 @@ export class KeplerOrbit extends AbstractOrbit{
   }
 
   /**au/msec */
-  getInstantVelocity(posOnOrbit = null, positionVector = null){
+  getInstantVelocity(posOnOrbit?: number, positionVector?: THREE.Vector3){
     return this.orbit.getInstantVelocity(posOnOrbit, positionVector)
   }
 
   /**au/msec */
-  getInstantVelocityVector(posOnOrbit = null, positionVector = null){
+  getInstantVelocityVector(posOnOrbit?: number, positionVector?: THREE.Vector3){
     return this.orbit.getInstantVelocityVector(posOnOrbit, positionVector).applyQuaternion(this.plane.object3d.quaternion)
   }
 
   /** Returns path, copies the plane's object3d */
-  getPath(segments=128, color= 0x222222){
+  getPath(segments: number=128, color: number= 0x222222){
     const obj = new THREE.Object3D()
     obj.copy(this.plane.object3d, false)
     const orb = this.orbit.getPath(segments, color)
@@ -81,7 +97,7 @@ export class KeplerOrbit extends AbstractOrbit{
     return obj
   }
 
-  showPath(segments=128, color= 0x222222){
+  showPath(segments: number=128, color: number= 0x222222){
     this.orbit.showPath(segments, color)
   }
   hidePath(){
@@ -92,7 +108,7 @@ export class KeplerOrbit extends AbstractOrbit{
    * 
    * Expects o.orbitCenter.standardGravitationalParameter
    */
-  static fromData(o, orbitCenter){
+  static fromData(o: OrbiterData, orbitCenter: SpatialObjectData){
     return new KeplerOrbit(
       o.epoch,
       o.orbitalPeriod,

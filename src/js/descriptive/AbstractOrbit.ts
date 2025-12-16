@@ -1,9 +1,13 @@
 import * as THREE from 'three'
 
-import { AnimatedSpaceObjectsGroup } from '../core/SpaceObject.js'
+import { AnimatedSpaceObjectsGroup } from '../core/SpaceObject'
+import { Msec } from '../core/spatialUnits'
 
-export class AbstractOrbit extends AnimatedSpaceObjectsGroup{
-  constructor(initDate){
+export abstract class AbstractOrbit extends AnimatedSpaceObjectsGroup{
+  initDate: Date
+  currentSimulTimestamp: number
+  pathObject3d: THREE.Object3D
+  constructor(initDate: Date){
     super(new THREE.Group())
     // mobile is the orbiter threejs group
     this.mobile = new THREE.Group()
@@ -12,10 +16,9 @@ export class AbstractOrbit extends AnimatedSpaceObjectsGroup{
     this.initDate = initDate
     this.currentSimulTimestamp = +initDate
   }
-  /**ABSTRACT */
-  getPath(segments=128, color= 0x555555){
-    throw "Orbit.getPath(): abstract method called"
-  }
+  abstract computeState(msecSimulInterval: Msec, posOnOrbit: number, positionVector?: THREE.Vector3): {posOnOrbit: number, positionVector: THREE.Vector3};
+  abstract computeStateAtDate(date: Date): {posOnOrbit: number, positionVector: THREE.Vector3};
+  abstract getPath(segments:number, color: number): THREE.Object3D
   showPath(segments=128, color= 0x222222){
     this.pathObject3d = this.getPath(segments, color)
     this.pathObject3d.rotateX(Math.PI/2)
@@ -26,7 +29,7 @@ export class AbstractOrbit extends AnimatedSpaceObjectsGroup{
     this.pathObject3d = null
   }
   
-  /**ABSTRACT */
+  /**ABSTRACT static method */
   static fromData(o, orbitCenter){
     throw "Orbit.fromData(): abstract method called"
   }
