@@ -149,31 +149,31 @@ console.log("launching...")
 
 // animate!!
 let lastPrintTS = 0
-let maxSimulTimestampReached = false
+let maxAnimationDurationReached = false
 let lastTimestamp = 0
 let currentSimulTimestamp = +epochs.J2000
 let animCount = 0
 function animate(timestamp:number) {
   animCount++
   //timestamp is a milliseconds timestamp since beginning of the animation, differences between 2 timestamps: usually around 16.66 milliseconds (60fps)
-  if(timestamp>config.maxSimulTimestamp && !maxSimulTimestampReached){
-    timestamp = config.maxSimulTimestamp
-    maxSimulTimestampReached = true
-    console.log("timestamp>maxSimulTimestamp!!")
+  if(timestamp>config.maxAnimationDuration && !maxAnimationDurationReached){
+    timestamp = config.maxAnimationDuration
+    maxAnimationDurationReached = true
+    console.log("timestamp>maxAnimationDuration!!")
   }
-  if(timestamp<=config.maxSimulTimestamp && animCount<=1000000000000){
+  if(timestamp<=config.maxAnimationDuration && animCount<=1000000000000){
     const deltaT = (timestamp-lastTimestamp)
     const simulDeltaT = deltaT * config.simulSecPerRealSec
     currentSimulTimestamp += simulDeltaT
     ags.animate(currentSimulTimestamp)
     kos.animate(currentSimulTimestamp)
-    if((timestamp>lastPrintTS+config.debugLogInterval) || maxSimulTimestampReached){
+    if((timestamp>lastPrintTS+config.debugLogInterval) || maxAnimationDurationReached){
       lastPrintTS=timestamp
       text2.innerHTML = ""+new Date(currentSimulTimestamp)
     }
-    if((timestamp%config.textUpdateInterval)<30 || maxSimulTimestampReached){
+    if((timestamp%config.textUpdateInterval)<30 || maxAnimationDurationReached){
       lastPrintTS=timestamp
-      text2.innerHTML = new Date(currentSimulTimestamp) + (maxSimulTimestampReached? "":"<br>framerate:"+Math.round(1000/deltaT))
+      text2.innerHTML = new Date(currentSimulTimestamp) + (maxAnimationDurationReached? "":"<br>framerate:"+Math.round(1000/deltaT))
     }
   }
   updateCameraLS(timestamp)

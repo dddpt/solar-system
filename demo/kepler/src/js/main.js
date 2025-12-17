@@ -107,18 +107,18 @@ console.log("launching...")
 
 // animate!!
 let lastPrintTS = 0
-let maxSimulTimestampReached = false
+let maxAnimationDurationReached = false
 function animate(timestamp) {
   //timestamp is a milliseconds timestamp since beginning of the animation, differences between 2 timestamps: usually around 16.66 milliseconds (60fps)
-  if(timestamp>config.maxSimulTimestamp && !maxSimulTimestampReached){
-    timestamp = config.maxSimulTimestamp
-    maxSimulTimestampReached = true
-    console.log("timestamp>maxSimulTimestamp!!")
+  if(timestamp>config.maxAnimationDuration && !maxAnimationDurationReached){
+    timestamp = config.maxAnimationDuration
+    maxAnimationDurationReached = true
+    console.log("timestamp>maxAnimationDuration!!")
   }
-  if(timestamp<=config.maxSimulTimestamp){
+  if(timestamp<=config.maxAnimationDuration){
     const simulTimestamp = timestamp * config.simulSecPerRealSec
     kos.animate(simulTimestamp)
-    if((timestamp>lastPrintTS+config.debugLogInterval) || maxSimulTimestampReached){
+    if((timestamp>lastPrintTS+config.debugLogInterval) || maxAnimationDurationReached){
       //console.log("kos.dict.Earth.orbit.orbit.mobile.position: ",kos.dict.Earth.orbit.orbit.mobile.position)
       lastPrintTS=timestamp
     }
