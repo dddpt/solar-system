@@ -117,11 +117,8 @@ export class EllipticOrbit extends AbstractOrbit{
       positionVector = this.getCoordinatesAt(posOnOrbit)
       console.debug("EO.computeState() "+this.data?.name+" COMPUTE posOnOrbit", posOnOrbit, "positionVector", positionVector.clone())
     }
-    //tconsole.debug("EO.computeState "+this.data?.name+" end posOnOrbit", posOnOrbit, "positionVector", positionVector)
     const tr = {posOnOrbit: posOnOrbit, positionVector: positionVector}
     tr.positionVector.y=0
-    //tconsole.debug("EO.computeState "+this.data?.name+" end tr", tr)
-    //tconsole.debug("KKEO.computeState "+this.data?.name+" tr.posOnOrbit", tr.posOnOrbit, "tr.positionVector", tr.positionVector)
     return tr
   }
 
@@ -144,14 +141,8 @@ export class EllipticOrbit extends AbstractOrbit{
     newPos.x = pos.x - this.ellipse.focus1.x
     newPos.z = -pos.y
     newPos.y = null
-    console.debug("EO.getCoordinatesAt() "+this.data?.name+" pos", pos, "newPos", newPos.clone())
+    //console.debug("EO.getCoordinatesAt() "+this.data?.name+" pos", pos, "newPos", newPos.clone())
     return newPos
-    /*const pos = this.ellipse.curve.getPointAt(u)
-    const result = new THREE.Vector3();
-    result.x = pos.x - this.ellipse.focus1.x
-    result.z = -pos.y
-    result.y = null
-    return result*/
   }
   getPath(segments: number=128, color: number= 0x222222){
     const points = this.ellipse.curve.getPoints(segments)
@@ -162,7 +153,11 @@ export class EllipticOrbit extends AbstractOrbit{
     return orbitEllipse
   }
 
-  /**au/msec */
+  /** Computes the instant velocity of a Keplerian Orbit according to the vis-viva equation
+   * 
+   * See https://en.wikipedia.org/wiki/Vis-viva_equation
+   * unit: au/msec
+   */
   getInstantVelocity(posOnOrbit: number|null, positionVector: THREE.Vector3|null): number{
     if(positionVector===null && posOnOrbit===null){
       positionVector = this.mobile.position
@@ -176,8 +171,15 @@ export class EllipticOrbit extends AbstractOrbit{
     return velocity
   }
 
-  /**au/msec */
-  getInstantVelocityVector(posOnOrbit: number|null, positionVector: THREE.Vector3|null){
+  /** Computes the Instant Velocity Vector using the vis-viva equation
+   * 
+   * BROKEN: computes the direction of the vector as the perpendicular to the current positionVector.
+   * 
+   * Proper tangent computation: https://en.wikipedia.org/wiki/Ellipse#Tangent
+   * 
+   * unit: au/msec
+   */
+  getInstantVelocityVector(posOnOrbit: number|null, positionVector: THREE.Vector3|null): THREE.Vector3{
     if(positionVector===null && posOnOrbit===null){
       positionVector = this.mobile.position
     }
