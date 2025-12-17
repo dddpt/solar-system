@@ -186,11 +186,20 @@ export class EllipticOrbit extends AbstractOrbit{
     if(positionVector===null){
       positionVector = this.getCoordinatesAt(posOnOrbit)
     }
-    const pv = positionVector.clone()
-    const velocity = this.getInstantVelocity(posOnOrbit, positionVector )
-    const velVector = (new THREE.Vector3(0,1,0)).cross(new THREE.Vector3(positionVector.x,0,positionVector.z)).normalize().multiplyScalar(velocity)
-    //tconsole.log("EllOrbit.getInstantVelocityVector(): pv", pv, "velocity", velocity, "velVector", velVector)
-    return velVector
+
+    // tangent computation following vector parametric equation of the tangent
+    const a = this.ellipse.semiMajorAxis
+    const b = this.ellipse.semiMinorAxis
+    const tangentVector = new THREE.Vector3(
+      -positionVector.z*(a**2),
+      0,
+      positionVector.x*(b**2),
+    )
+    tangentVector.add(positionVector)
+    tangentVector.normalize()
+
+    const velocity = this.getInstantVelocity(posOnOrbit, positionVector)
+    return tangentVector.multiplyScalar(velocity)
   }
 
   /** Creates EllipticOrbit from planet data
