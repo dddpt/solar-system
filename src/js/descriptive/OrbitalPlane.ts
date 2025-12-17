@@ -27,7 +27,7 @@ export class TiltedOrbitalPlane extends OrbitalPlane{
   inclination: Rad;
   argumentOfPeriapsis: Rad;
 
-  constructor(radInclination, radLongitudeOfAscendingNode, radArgumentOfPeriapsis){
+  constructor(radInclination: Rad, radLongitudeOfAscendingNode: Rad, radArgumentOfPeriapsis: Rad){
     super()
     this.longitudeOfAscendingNode = radLongitudeOfAscendingNode
     this.inclination = radInclination

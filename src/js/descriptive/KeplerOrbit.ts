@@ -35,6 +35,7 @@ export class KeplerOrbit extends AbstractOrbit{
     this.plane = new TiltedOrbitalPlane(radInclination, radLongitudeOfAscendingNode, radArgumentOfPeriapsis)
     this.plane.add(this.orbit)
     this.object3d.add(this.plane.object3d)
+    this.object3d.remove(this.mobile)
     this.mobile = this.orbit.mobile
   }
 

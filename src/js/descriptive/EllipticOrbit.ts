@@ -191,11 +191,10 @@ export class EllipticOrbit extends AbstractOrbit{
     const a = this.ellipse.semiMajorAxis
     const b = this.ellipse.semiMinorAxis
     const tangentVector = new THREE.Vector3(
-      -positionVector.z*(a**2),
+      positionVector.z*(a**2),
       0,
-      positionVector.x*(b**2),
+      -positionVector.x*(b**2),
     )
-    tangentVector.add(positionVector)
     tangentVector.normalize()
 
     const velocity = this.getInstantVelocity(posOnOrbit, positionVector)
