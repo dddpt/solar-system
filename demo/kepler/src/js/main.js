@@ -2,12 +2,12 @@ import * as THREE from 'three'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 
 import {config} from "./config.js"
-import { KeplerOrbitalSystem } from '../../../../src/js/descriptive/KeplerOrbitalSystem'
-import { EclipticOrthogonalsOrbitArtist } from '../../../../src/js/descriptive/OrbitArtist'
-import { ColoredSphere } from "../../../../src/js/PlanetArtist";
-import {planets, sun, mercury, earth, pluto, astronomicalBodies, epochs} from "../../../../src/js/data/SolarSystemData"
-import {yr, msec, sec, km, time, units} from "../../../../src/js/core/spatialUnits"
-import {addAxesHelper, resizeRendererToDisplaySize, ellipse} from "../../../../src/js/utils"
+import { KeplerOrbitalSystem } from '../../../../src/ts/descriptive/KeplerOrbitalSystem'
+import { EclipticOrthogonalsOrbitArtist } from '../../../../src/ts/descriptive/OrbitArtist'
+import { ColoredSphere } from "../../../../src/ts/PlanetArtist";
+import {planets, sun, mercury, earth, pluto, astronomicalBodies, epochs} from "../../../../src/ts/data/SolarSystemData"
+import {yr, msec, sec, km, time, units} from "../../../../src/ts/core/spatialUnits"
+import {addAxesHelper, resizeRendererToDisplaySize, ellipse} from "../../../../src/ts/utils"
  
 // create scene, camera and renderer
 const scene = new THREE.Scene();

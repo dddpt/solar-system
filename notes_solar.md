@@ -1,19 +1,6 @@
 
 
 
-# Notes 2025
-
-## todolist
-
-- switch to ts
-- improve software architecture
-    - more flexible time handling
-    - clear separation of computation and artistry
-
-## switch to TypeScript
-
-following https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html
-
 # Notes pre2025
 
 Software architecture
@@ -238,3 +225,44 @@ Incredible planet visualiser, with terrain pictures and exagerable height maps:
 http://planetmaker.wthr.us/#
 
 http://podgorskiy.com/KeplerOrbits/KeplerOrbits.html
+
+
+
+
+# Notes 2025
+
+## todolist
+
+- DONE switch to ts
+- fix NewtonianBody GravitationalSystem
+  - Animation bug when leaving window
+  - divergence from KeplerOrbit
+- improve software architecture
+    - more flexible time handling
+    - clear separation of computation and artistry
+
+
+## switch to TypeScript
+
+following https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html
+
+
+## Improved Software architecture
+
+Goals:
+- clear separation of computation and artistry
+- clear folder structure
+- metadata flowing freely between parts
+
+Proposition:
+- Orbits
+  - is a "XxxSpaceObjectsGroup" and can compute positions for multiple objects, i.e. the earth orbit computes positions&orientation for the earth and its moon
+  - only return raw position and orientation in the global frame of reference
+  - can use THREE objects, but by default those are not added to the THREE scene
+  - are stateless: no currentTimestamp, etc 
+- OrbitCache:
+    - Orbits can take advantage of caching
+    - Caching by timestamp
+- Artists:
+  - take a position and rotation to draw stuff in global reference frame
+  - 

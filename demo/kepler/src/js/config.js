@@ -1,5 +1,5 @@
 
-import {yr, sec} from "../../../../src/js/core/spatialUnits"
+import {yr, sec} from "../../../../src/ts/core/spatialUnits"
 
 export const config={
   simulSecPerRealSec: 1*yr/(30*sec),
