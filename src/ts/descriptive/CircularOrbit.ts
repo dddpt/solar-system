@@ -53,27 +53,27 @@ const twoPi = 2*Math.PI
   }
 
 
-    /** compute the state of the Orbit's mobile (position, orientation, etc...) from a position and time interval
-    * 
-    * Doesn't affect the state of the Elliptic Orbit (doesn't update this.mobile.position), call initAnimation()/animate() for that
-    * @param {number} posOnOrbit between 0 and 1, position on orbit to compute from
-    * @param {number} msecSimulInterval time interval (as msec) that for which orbit has to be computed
-    * @param {THREE.Vector3} positionVector (optional) coordinates corresponding to posOnOrbit, avoids a call to getCoordinatesAt(posOnOrbit)
-    */
-    computeState(msecSimulInterval: Msec){
-      throw "CircularOrbit: computeState not implemented() TODO"
-      return {posOnOrbit: 0, positionVector: new THREE.Vector3}
-    }
-  
-    /** compute the state of the Orbit's mobile (position, orientation, etc...) from a date
-    * 
-    * Doesn't affect the state of the Elliptic Orbit (doesn't update this.mobile.position), call initAnimation()/animate() for that
-    * @param {Date} date fixed date at which to compute state
-    */
-    computeStateAtDate(date: Date=this.initDate){
-      throw "CircularOrbit: computeStateAtDate not implemented() TODO"
-      return {posOnOrbit: 0, positionVector: new THREE.Vector3}
-    }
+  /** compute the state of the Orbit's mobile (position, orientation, etc...) from a position and time interval
+  * 
+  * Doesn't affect the state of the Elliptic Orbit (doesn't update this.mobile.position), call initAnimation()/animate() for that
+  * @param {number} posOnOrbit between 0 and 1, position on orbit to compute from
+  * @param {number} msecSimulInterval time interval (as msec) that for which orbit has to be computed
+  * @param {THREE.Vector3} positionVector (optional) coordinates corresponding to posOnOrbit, avoids a call to getCoordinatesAt(posOnOrbit)
+  */
+  computeState(msecSimulInterval: Msec){
+    throw "CircularOrbit: computeState not implemented() TODO"
+    return {posOnOrbit: 0, positionVector: new THREE.Vector3}
+  }
+
+  /** compute the state of the Orbit's mobile (position, orientation, etc...) from a date
+  * 
+  * Doesn't affect the state of the Elliptic Orbit (doesn't update this.mobile.position), call initAnimation()/animate() for that
+  * @param {Date} date fixed date at which to compute state
+  */
+  computeStateAtDate(date: Date=this.initDate){
+    throw "CircularOrbit: computeStateAtDate not implemented() TODO"
+    return {posOnOrbit: 0, positionVector: new THREE.Vector3}
+  }
 
   getPath(segments=128, color= 0x222222){
     let material = new THREE.LineBasicMaterial( { color } )

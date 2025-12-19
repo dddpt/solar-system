@@ -7,10 +7,10 @@ export abstract class Animated{
   constructor(){
   }
   /**ABSTRACT initAnimation() prepares the animation for a given date*/
-  abstract initAnimation(newDate: Date);
+  abstract initAnimation(newDate: Date): void;
 
   /**ABSTRACT animate() animates the object for the given secSimulTimestamp*/
-  abstract animate(msecSimulTimestamp: Msec);
+  abstract animate(msecSimulTimestamp: Msec): void;
 }
 
 /** AnimatedSpaceObject: simply an object having an three.js object3d property

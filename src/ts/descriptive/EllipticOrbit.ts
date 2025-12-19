@@ -77,7 +77,7 @@ export class EllipticOrbit extends AbstractOrbit{
 
   /** */
   animate(msecSimulTimestamp: Msec){
-  super.animate(msecSimulTimestamp)
+    super.animate(msecSimulTimestamp)
     const msecSimulInterval = msecSimulTimestamp-this.lastAnimateTimestamp
     tconsole.debug("EO.animate() "+this.data?.name+" this.currentPosOnOrbit", this.currentPosOnOrbit, "this.mobile.position", this.mobile.position.clone())
     const state = this.computeState(msecSimulInterval, this.currentPosOnOrbit, this.mobile.position.clone())
@@ -88,7 +88,7 @@ export class EllipticOrbit extends AbstractOrbit{
     this.lastAnimateTimestamp = msecSimulTimestamp
     this.currentSimulTimestamp += msecSimulInterval
     //tconsole.debug("EO.animate3() this.currentPosOnOrbit", this.currentPosOnOrbit, "this.mobile.position", this.mobile.position, "lastAnimateTimestamp", this.lastAnimateTimestamp, "this.currentSimulTimestamp", this.currentSimulTimestamp)
-    }
+  }
  
   /** compute the state of the Orbit's mobile (position, orientation, etc...) from a position and time interval
   * 

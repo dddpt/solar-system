@@ -249,14 +249,67 @@ following https://www.typescriptlang.org/docs/handbook/migrating-from-javascript
 
 ## Improved Software architecture
 
-Goals:
+### Current signatures
+
+core: 
+- Animated
+  initAnimation()
+  animate() <- MOST IMPORTANTE used by global animate() doing the animation!
+- AnimatedSpaceObject (ASO) extends Animated
+  object3d
+- AnimatedSpaceObjectsGroup (ASOG) extends AnimatedSpaceObject
+  - mobile (=this.object3d? why?)
+  - children: ASO[]
+
+descriptive:
+- AbstractOrbit (AO) extends ASOG
+  data: 
+  initDate
+  currentSimulTimestamp
+  pathObject3d UNUSED
+  computeState() <- MOST IMPORTANTE
+  computeStateAtDate()
+- CircularOrbit
+  computeState() <- not implemented
+  -> uses simple constant speed across circle, very
+- EllipticOrbit
+  lastAnimateTimestamp
+  currentPosOnOrbit
+  _initPosOnOrbit
+  -> nothing to ordinary, pretty fine 
+
+### Current folder organization
+
+- core/
+  - minimal
+- data/
+- descriptive/
+  - AbstractOrbit
+  - CircularOrbit
+  - EllipticOrbit
+  - KeplerOrbit and System
+  - OrbitArtist
+- newtonian/
+  - GravitationalSystem
+  - NewtonianBody
+
+proposition:
+- new artist/ folder with artistry stuff
+
+### Goals:
 - clear separation of computation and artistry
 - clear folder structure
 - metadata flowing freely between parts
 
-Proposition:
+### Proposition:
+
+
+
 - Orbits
-  - is a "XxxSpaceObjectsGroup" and can compute positions for multiple objects, i.e. the earth orbit computes positions&orientation for the earth and its moon
+  - remove the AnimatedSpaceObjectsGroup (ASOG) inheritance and animate() method
+  - removes currentPosition and currentTimestamp properties
+  - computes position, orientation (and velocity, optional)
+  - is a "XxxSpaceObjectsGroup" and can compute positions for multiple objects, i.e. the earth orbit computes position, orientation and velocity for the earth and its moon
   - only return raw position and orientation in the global frame of reference
   - can use THREE objects, but by default those are not added to the THREE scene
   - are stateless: no currentTimestamp, etc 
@@ -265,4 +318,35 @@ Proposition:
     - Caching by timestamp
 - Artists:
   - take a position and rotation to draw stuff in global reference frame
-  - 
+
+- OrbitCache:
+  - param: a buffer size
+  - `Map<timestamp, {position, rotation, velocity, ...other}>` 
+  - once bufferSize reached, removes random cache entry
+  -> pitfall: coordinate random cache deletion across caches
+
+Question:
+- does the orbitCache have a orbit property...
+- or the orbit have a cache property?
+- or the XxOrbitCache be a child class of XxOrbit
+
+orbitCache.orbit:
++ interacts with the cache directly
+- harder access to orbit.data
+- 
+
+SELECTED pro orbit.cache:
++ MAIN REASON any orbit does need a initialPosition anyway
++ easier access to orbit.data stuff
+- ?less clean code-wise? (an orbit doesn't actually need a cache -> yes it does!)
+
+XxOrbitCache child class of XxOrbit:
++ neat access to orbit.data and cache
+- XxOrbitCache and YyOrbitCache don't have a common parent class -> use OrbitCache interface
+- how to not rewrite code for each of them -> Mixin pattern https://www.typescriptlang.org/docs/handbook/mixins.html
+
+##### Roadmap
+
+- create OrbitCache
+- remove ASOG
+- rewrite artistry
