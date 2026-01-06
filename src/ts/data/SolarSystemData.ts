@@ -5,7 +5,9 @@ export const epochs = {
 }
 
 export interface SpatialObjectData {
-  name: string;
+  id: string;
+  orbitCenterId: string|undefined;
+  epoch: Date;
   standardGravitationalParameter: number;
   meanRadius: Au;
   mass: Kg;
@@ -13,8 +15,7 @@ export interface SpatialObjectData {
   three: any;
 }
 export interface OrbiterData extends SpatialObjectData {
-  orbitCenterName: string;
-  epoch: Date;
+  orbitCenterId: string;
   semiMajorAxis: Au;
   eccentricity: number;
   orbitalPeriod: D;
@@ -25,7 +26,9 @@ export interface OrbiterData extends SpatialObjectData {
 }
 
 export const sun: SpatialObjectData = {
-  name: "Sun",
+  id: "Sun",
+  orbitCenterId: undefined,
+  epoch: epochs.J2000,
   standardGravitationalParameter: 1.32712440018*(10**20)*m**3,
   meanRadius: 696342*km,
   mass: 1.9884 * 10**30*kg,
@@ -33,8 +36,8 @@ export const sun: SpatialObjectData = {
   three: {}
 }
 export const mercury: OrbiterData = {
-  name: "Mercury",
-  orbitCenterName: "Sun",
+  id: "Mercury",
+  orbitCenterId: "Sun",
   standardGravitationalParameter: 2.2032*(10**13)*m**3,
   epoch: epochs.J2000,
   semiMajorAxis: 0.387098*au,
@@ -50,8 +53,8 @@ export const mercury: OrbiterData = {
   three: {}
 }
 export const venus: OrbiterData = {
-  name: "Venus",
-  orbitCenterName: "Sun",
+  id: "Venus",
+  orbitCenterId: "Sun",
   standardGravitationalParameter: 3.24859*(10**14)*m**3,
   epoch: epochs.J2000,
   semiMajorAxis: 0.723332*au,
@@ -67,8 +70,8 @@ export const venus: OrbiterData = {
   three: {}
 }
 export const earth: OrbiterData = {
-  name: "Earth",
-  orbitCenterName: "Sun",
+  id: "Earth",
+  orbitCenterId: "Sun",
   standardGravitationalParameter: 3.986004418*(10**14)*m**3,
   epoch: epochs.J2000,
   semiMajorAxis: 149598023*km,
@@ -84,8 +87,8 @@ export const earth: OrbiterData = {
   three: {}
 }
 export const mars: OrbiterData = {
-  name: "Mars",
-  orbitCenterName: "Sun",
+  id: "Mars",
+  orbitCenterId: "Sun",
   standardGravitationalParameter: 4.282837*(10**13)*m**3,
   epoch: epochs.J2000,
   semiMajorAxis: 227939200*km,
@@ -101,8 +104,8 @@ export const mars: OrbiterData = {
   three: {}
 }
 export const jupiter: OrbiterData = {
-  name: "Jupiter",
-  orbitCenterName: "Sun",
+  id: "Jupiter",
+  orbitCenterId: "Sun",
   standardGravitationalParameter: 1.26686534*(10**17)*m**3,
   epoch: epochs.J2000,
   semiMajorAxis: 5.2044*au,
@@ -118,8 +121,8 @@ export const jupiter: OrbiterData = {
   three: {}
 }
 export const saturn: OrbiterData = {
-  name: "Saturn",
-  orbitCenterName: "Sun",
+  id: "Saturn",
+  orbitCenterId: "Sun",
   standardGravitationalParameter: 3.7931187*(10**16)*m**3,
   epoch: epochs.J2000,
   semiMajorAxis: 9.5826*au,
@@ -135,8 +138,8 @@ export const saturn: OrbiterData = {
   three: {}
 }
 export const uranus: OrbiterData = {
-  name: "Uranus",
-  orbitCenterName: "Sun",
+  id: "Uranus",
+  orbitCenterId: "Sun",
   standardGravitationalParameter: 5.793939*(10**15)*m**3,
   epoch: epochs.J2000,
   semiMajorAxis: 19.2184*au,
@@ -152,8 +155,8 @@ export const uranus: OrbiterData = {
   three: {}
 }
 export const neptune: OrbiterData = {
-  name: "Neptune",
-  orbitCenterName: "Sun",
+  id: "Neptune",
+  orbitCenterId: "Sun",
   standardGravitationalParameter: 6.836529*(10**15)*m**3,
   epoch: epochs.J2000,
   semiMajorAxis: 30.11*au,
@@ -169,8 +172,8 @@ export const neptune: OrbiterData = {
   three: {}
 }
 export const pluto: OrbiterData = {
-  name: "Pluto",
-  orbitCenterName: "Sun",
+  id: "Pluto",
+  orbitCenterId: "Sun",
   standardGravitationalParameter: 8.71*(10**11)*m**3,
   epoch: epochs.J2000,
   semiMajorAxis: 39.482*au,
@@ -185,6 +188,9 @@ export const pluto: OrbiterData = {
   color: 0x777777,
   three: {}
 }
+export const sunAndPlanets: (SpatialObjectData|OrbiterData)[] = [
+  sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, pluto
+]
 export const planets = [
   mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, pluto
 ]
@@ -195,16 +201,16 @@ export class SystemData{
     this.bodies = bodies
   }
   get(aName:string): SpatialObjectData{
-    return this.bodies.find(a=>a.name.toLowerCase()==aName.toLowerCase())
+    return this.bodies.find(a=>a.id.toLowerCase()==aName.toLowerCase())
   }
   getOrbiters(ocName: string): OrbiterData[]{
-    const ocname = ocName.toLowerCase()
+    const ocid = ocName.toLowerCase()
     return this.bodies
-      .filter(a=> "orbitCenterName" in a)
+      .filter(a=> "orbitCenterId" in a)
       .map(a=> a as OrbiterData)
-      .filter(a=> a.orbitCenterName.toLowerCase()==ocname)
+      .filter(a=> a.orbitCenterId.toLowerCase()==ocid)
   }
 }
 
 export const astronomicalBodies = new SystemData([sun].concat(planets))
-//astronomicalBodies.forEach(p => {if(p.orbitCenterName){p.orbitCenter = astronomicalBodies.find(b=>b.name==p.orbitCenterName)}})
+//astronomicalBodies.forEach(p => {if(p.orbitCenterId){p.orbitCenter = astronomicalBodies.find(b=>b.id==p.orbitCenterId)}})

@@ -3,8 +3,8 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 
 import {config} from "./config.js"
 import { KeplerOrbitalSystem } from '../../../../src/ts/descriptive/KeplerOrbitalSystem'
-import { EclipticOrthogonalsOrbitArtist } from '../../../../src/ts/descriptive/OrbitArtist'
-import { ColoredSphere } from "../../../../src/ts/PlanetArtist";
+import { EclipticOrthogonalsOrbitArtist } from '../../../../src/ts/artistry/EclipticOrthogonalsOrbitArtist'
+import { ColoredSphere } from "../../../../src/ts/artistry/PlanetArtist";
 import {planets, sun, mercury, earth, pluto, astronomicalBodies, epochs} from "../../../../src/ts/data/SolarSystemData"
 import {yr, msec, sec, km, time, units} from "../../../../src/ts/core/spatialUnits"
 import {addAxesHelper, resizeRendererToDisplaySize, ellipse} from "../../../../src/ts/utils"

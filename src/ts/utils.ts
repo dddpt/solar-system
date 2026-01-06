@@ -110,7 +110,7 @@ export function binarySearch(
 export class ConsoleInterval{
   msecInterval: Msec;
   timestamps: {}
-  constructor(msecInterval){
+  constructor(msecInterval: Msec){
     this.msecInterval = msecInterval
     this.timestamps = {}
   }
@@ -145,4 +145,4 @@ export class ConsoleInterval{
 }
 
 
-export const tconsole = new ConsoleInterval(1500)
+export const tconsole = new ConsoleInterval(500)

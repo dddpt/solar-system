@@ -1,77 +1,73 @@
 import * as THREE from 'three'
 import { Msec } from './spatialUnits'
+import { OrbiterData, SpatialObjectData } from '../data/SolarSystemData';
 
-/** Animated: has 2 methods relevant for three.js animation: initAnimation() and animate()
+
+/** Any kind of SpaceObject
  */
-export abstract class Animated{
-  constructor(){
-  }
-  /**ABSTRACT initAnimation() prepares the animation for a given date*/
-  abstract initAnimation(newDate: Date): void;
+export abstract class SpaceObject<State extends SpatialObjectState>{
+  id: string;
+  data: any
+  constructor(){}
 
-  /**ABSTRACT animate() animates the object for the given secSimulTimestamp*/
-  abstract animate(msecSimulTimestamp: Msec): void;
-}
+    abstract initialize(): void;
+    abstract getInitialState(): State;
+    abstract getState(timestamp: Msec): State;
 
-/** AnimatedSpaceObject: simply an object having an three.js object3d property
- * 
- * extends Animated
- */
-export abstract class AnimatedSpaceObject extends Animated{
-  object3d: THREE.Object3D
-  constructor(object3d : THREE.Object3D){
-    super()
-    this.object3d = object3d
-  }
-}
-
-/** AnimatedSpaceObjectsGroup: an AnimatedSpaceObject with children AnimatedSpaceObject
- * 
- * takes care of propagating animate() and initAnimation() to children
- */
-export class AnimatedSpaceObjectsGroup extends AnimatedSpaceObject{
-  mobile: THREE.Object3D
-  children: AnimatedSpaceObject[]
-  constructor(object3d: THREE.Object3D){
-    super(object3d)
-    this.mobile = object3d // by default: no mobile and hence this.mobile = this.object3d
-    this.children = []
-  }
+    // 2025.12.19 old signature:
+    //stract computeState(msecSimulInterval: Msec, posOnOrbit: number, positionVector: THREE.Vector3|null): {posOnOrbit: number, positionVector: THREE.Vector3};
+    abstract computeState(timestamp: Msec): State;
+    
+    /** compute the state of the Orbit's mobile (position, orientation, etc...) from a date
+    * 
+    * Doesn't affect the state of the Elliptic Orbit (doesn't update this.mobile.position), call initAnimation()/animate() for that
+    * @param {Date} date fixed date at which to compute state
+    */
+    // 2025.12.19 old signature:
+    //mputeStateAtDate(date: Date): {posOnOrbit: number, positionVector: THREE.Vector3};
+    computeStateAtDate(date: Date): State{
+      return this.computeState(+date)
+    }
   
-  /** */
-  initAnimation(newDate: Date){
-    this.children.forEach(o=>{
-      o.initAnimation(newDate)
-    })
-  }
-  /** does nothing */
-  animate(msecSimulTimestamp: Msec){
-    this.children.forEach(o=>{
-      o.animate(msecSimulTimestamp)
-    })
+    /**ABSTRACT static method */
+    static fromData(o: OrbiterData, orbitCenter: SpatialObjectData){
+      throw "AbstractOrbit.fromData(): abstract method called"
+    }
+}
+
+
+export class SpatialObjectState{
+  timestamp: number;
+  position: THREE.Vector3;
+  velocity: THREE.Vector3;
+  rotation: THREE.Quaternion;
+  constructor(
+    timestamp: number,
+    position: THREE.Vector3,
+    velocity: THREE.Vector3,
+    rotation: THREE.Quaternion
+  ){
+    this.timestamp = timestamp
+    this.position = position
+    this.velocity = velocity
+    this.rotation = rotation
   }
 
-  /** */
-  add(...children: AnimatedSpaceObject[]){
-    const self = this
-    children = children.filter(o=>!self.children.includes(o))
-    this.children = this.children.concat(children)
-    children.forEach(o=>{
-      if (o.object3d){
-        self.mobile.add(o.object3d)
-      }
-      else{
-        throw "AnimatedSpaceObjectsGroup.add() missing object3d for: "+o
-      }
-    })
-  }
-  /** */
-  remove(...children: AnimatedSpaceObject[]){
-    const self = this
-    this.children = this.children.filter(o=>!children.includes(o))
-    children.forEach(o=>{
-      self.mobile.remove(o.object3d)
-    })
-  }
+  /** Returns new SpatialObjectState applying this state's position and rotation to child's state*/
+  applyChildState(childState: SpatialObjectState): SpatialObjectState{
+    if(childState.timestamp!=this.timestamp){
+      console.warn("SpatialObjectState.computeChildState(): combining 2 states with different timestamps. this.timestamp: " +(new Date(this.timestamp)), " child timestamp: "+(new Date(childState.timestamp)))
+    }
 
+    return new SpatialObjectState(
+      this.timestamp,
+      childState.position.clone().applyQuaternion(this.rotation).add(this.position),
+      childState.velocity.clone().applyQuaternion(this.rotation).add(this.velocity),
+      this.rotation.clone().multiply(childState.rotation)
+    )
+  }
+  /** Returns new SpatialObjectState with parent's position and rotation applied*/
+  applyParentState(parentState: SpatialObjectState): SpatialObjectState{
+    return parentState.applyChildState(this)
+  }
 }

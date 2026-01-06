@@ -2,13 +2,13 @@
 
 import * as THREE from 'three'
 
-import { AnimatedSpaceObjectsGroup } from '../core/SpaceObject'
+import { ArtistsGroup } from '../artistry/Animated'
 import { OrbiterData } from '../data/SolarSystemData'
 import { Msec, Rad } from '../core/spatialUnits'
 
-export class OrbitalPlane extends AnimatedSpaceObjectsGroup{
+export class OrbitalPlane extends ArtistsGroup{
   constructor(){
-    super(new THREE.Group())
+    super()
   }
   
   /**ABSTRACT */

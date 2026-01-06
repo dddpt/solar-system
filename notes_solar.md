@@ -237,9 +237,9 @@ http://podgorskiy.com/KeplerOrbits/KeplerOrbits.html
 - fix NewtonianBody GravitationalSystem
   - Animation bug when leaving window
   - divergence from KeplerOrbit
-- improve software architecture
+- DONE improve software architecture
     - more flexible time handling
-    - clear separation of computation and artistry
+    - DONE clear separation of computation and artistry
 
 
 ## switch to TypeScript
@@ -297,38 +297,47 @@ proposition:
 - new artist/ folder with artistry stuff
 
 ### Goals:
-- clear separation of computation and artistry
-- clear folder structure
+- DONE clear separation of computation and artistry
+- DONE clear folder structure
 - metadata flowing freely between parts
 
 ### Proposition:
 
 
 
-- Orbits
-  - remove the AnimatedSpaceObjectsGroup (ASOG) inheritance and animate() method
-  - removes currentPosition and currentTimestamp properties
-  - computes position, orientation (and velocity, optional)
-  - is a "XxxSpaceObjectsGroup" and can compute positions for multiple objects, i.e. the earth orbit computes position, orientation and velocity for the earth and its moon
-  - only return raw position and orientation in the global frame of reference
-  - can use THREE objects, but by default those are not added to the THREE scene
-  - are stateless: no currentTimestamp, etc 
-- OrbitCache:
-    - Orbits can take advantage of caching
-    - Caching by timestamp
-- Artists:
-  - take a position and rotation to draw stuff in global reference frame
+Orbits
+- remove the AnimatedSpaceObjectsGroup (ASOG) inheritance and animate() method
+- removes currentPosition and currentTimestamp properties
+- computes position, orientation (and velocity, optional)
+- NONO is a "XxxSpaceObjectsGroup" and can compute positions for multiple objects, i.e. the earth orbit computes position, orientation and velocity for the earth and its moon
+- only return raw position and orientation in the global frame of reference
+- can use THREE objects, but by default those are not added to the THREE scene
+- are stateless: no currentTimestamp, etc 
+SpaceCache:
+- Orbits can take advantage of caching
+- Caching by timestamp
+OrbitalSystem
+- has a list of SpaceObjects
+- computes states for all SpaceObjects
+- is responsible for optimizations of computations
+DescriptiveOrbitalSystem child class of OS
+- 
+Artists:
+- take a position and rotation to draw stuff in global reference frame
 
-- OrbitCache:
+
+- SpaceCache:
   - param: a buffer size
   - `Map<timestamp, {position, rotation, velocity, ...other}>` 
   - once bufferSize reached, removes random cache entry
   -> pitfall: coordinate random cache deletion across caches
 
+### OrbitCache/SpaceCache
+
 Question:
 - does the orbitCache have a orbit property...
 - or the orbit have a cache property?
-- or the XxOrbitCache be a child class of XxOrbit
+- or the XxSpaceCache be a child class of XxOrbit
 
 orbitCache.orbit:
 + interacts with the cache directly
@@ -340,13 +349,127 @@ SELECTED pro orbit.cache:
 + easier access to orbit.data stuff
 - ?less clean code-wise? (an orbit doesn't actually need a cache -> yes it does!)
 
-XxOrbitCache child class of XxOrbit:
+XxSpaceCache child class of XxOrbit:
 + neat access to orbit.data and cache
-- XxOrbitCache and YyOrbitCache don't have a common parent class -> use OrbitCache interface
+- XxSpaceCache and YySpaceCache don't have a common parent class -> use SpaceCache interface
 - how to not rewrite code for each of them -> Mixin pattern https://www.typescriptlang.org/docs/handbook/mixins.html
 
-##### Roadmap
+### SpaceObjects Hierarchy and OrbitalSystems
 
-- create OrbitCache
-- remove ASOG
-- rewrite artistry
+Question:
+- How to organize objects which orbit objects that orbit other objects? (orbiters2)
+- How to organize objects efficiently for 1) computation and 2) artistry and drawing
+
+goals:
+- being able to efficiently compute global position for orbiters2
+- being able to efficiently compute&cache "local" position for orbiters2
+- no code duplication
+- easy transition from descriptive/kepler orbits to newtonian orbits
+- what about re-creating the hierarchy in the THREE.js artistry part? 
+
+Propositions:
+a) AbstractOrbit has a "parent" property, which references the parent orbit, with getGlobalState() method
+b) "OrbitalSystem" class keeps a flat list of all the orbits/objects it has. Each AO object has a system property (ref to OS), a parent property (string to AO id), and a getGlobalState() method
+c) "OrbitalSystem" class keeps a flat list of all the orbits/objects it has. Each AO object has a  parent property (string to AO id). OS takes care of composing each object's globalState() from AO.getState()
+d) CompositeOrbit class has a "parent" and "orbit" property and computes the global getState()
+
+Proposition a) AO parent ref + getGlobalState():
++ each AO is able to compute its globalState
++ easy to pass an AO to a NewtonianOrbit and get Initial State
+- ref mumbo-jumbo
+- footgun with AO.getGlobalState/getState()
+- less tight control on optimization: might re-compute parents' state multiple times
+
+Proposition b) OS AO flatlist + AO.getGlobalState()
++ each AO is able to compute its globalState
++ easy to pass an AO to a NewtonianOrbit and get Initial State
+- footgun with AO.getGlobalState/getState()
+
+Proposition c) OS AO flatlist + OS.getGlobalState()
++ no footgun between getState() getGlobalState()
++ OS is responsible for optimization of computations
+- AO unaware of its globalState()
+
+Proposition d) CompositeOrbit class
+- NewtonianOrbit non-compatible
+- too focused on hierarchized orbits
+
+Decision:
+- hard to choose between c) and b)
+- will go for c):
+  - in b) AO must go through OS
+  -> so as well skip this step and go directly to OS computing everything
+  -> leaves freedom for the OS to use Three.group or single globally positionned Three.object3d
+
+Computation and artistry
+- Computation: DescriptiveOrbitalSystem
+  - takes OrbiterData[] and fromData: (data)=> Orbit
+- Artistry:
+  - <Hierarchical/Descriptive>OrbitalSystemArtist
+    -> child class of DescriptiveOrbitalSystem
+  - HierarchicalOrbitArtist
+    -> Takes all the old object3d/group artistry properties/quirks of the old Orbits
+    -> orbit property
+    -> builds a hierarchical tree of Orbit&children
+    -> draws them in hierarchical order
+    -> avoids "world" position/rotation computations
+
+#### Roadmap
+
+- DONE create OrbitCache
+- DONE refactor ASOG
+- DONE think of and write up new way of hierarchyzing orbits&objects
+- DONE rewrite artistry
+- DONE rewrite NewtonianBody as a stateless with cache object
+- DONE rewrite GravitationalSystem using the new NewtonianBody 
+
+# Fixing Newtonian GravitationalSystem
+
+Ideas:
+- allow for better visualisation of state/vector properties
+  - be able to see a state's properties by clicking (velocity, etc)
+- create a mock solar system where parameters are known
+  -> errors will be easily identified
+- compare velocity values from GS to KOS
+  - ?compute GS values at KOS places?
+
+## better visualisation
+
+steps:
+- DONE show each step with a sphere
+- click on a sphere
+  - shows vectors
+  - shows velocity/Acc/force values in a html elment
+  - ?shows comparable value from KOS
+
+
+### visualisation/events architecture
+
+AnimatedSpaceObject (ASO) renamed to Artist
+AnimatedSpaceObjectsGroup (ASO) renamed to ArtistsGroup
+
+needs:
+- keeps track of currently selected feature
+- allows hover/click interaction
+- different places to show stuff?
+
+Proposition:
+- EventListener3D class to listen events
+  - id property
+  - .onClick() & .onHover() methods 
+- singleton global EventManager3D object
+  - addEventListener(click/hover, EventListener3D) method
+  - listens to hover/click events
+  - triggers EventListener3D methods
+- Artists
+  - have "eventListeners" array with ids of eventListener, addEventListener(elId)
+  -> each EventListener3D is responsible to add itself to the proper artists
+- Selector?
+  - object with "selected", "clicked" attribute
+  - select/unselect method
+
+onClick/onHover() arguments signature:
+- three.intersection
+- artist
+- whatelse?
+

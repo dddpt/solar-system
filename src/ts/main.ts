@@ -2,22 +2,33 @@ import * as THREE from 'three'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 
 import {config} from "./config"
-import { CircularOrbit, EllipticOrbit, KeplerOrbit } from './descriptive/Orbit'
+import { AbstractOrbit, CircularOrbit, EllipticOrbit, KeplerOrbit } from './descriptive/Orbit'
 import { KeplerOrbitalSystem } from './descriptive/KeplerOrbitalSystem'
-import { EclipticOrthogonalsOrbitArtist } from './descriptive/OrbitArtist'
-import { ColoredSphere } from "./PlanetArtist";
-import {planets, sun, mercury, earth, pluto, astronomicalBodies, epochs, jupiter} from "./data/SolarSystemData"
+import { ColoredSphere } from "./artistry/PlanetArtist";
+import {planets, sun, mercury, earth, pluto, astronomicalBodies, epochs, jupiter, SpatialObjectData, sunAndPlanets} from "./data/SolarSystemData"
 import {yr, msec, sec, km, time, units} from "./core/spatialUnits"
-import {addAxesHelper, resizeRendererToDisplaySize} from "./utils"
-import { NewtonianBody, AnimatedNewtonianBody } from './newtonian/NewtonianBody'
-import { AnimatedGravitationalSystem } from './newtonian/GravitationalSystem'
-import { DescriptiveOrbitalSystemOrbiter } from './descriptive/DescriptiveOrbitalSystem'
+import {addAxesHelper, resizeRendererToDisplaySize, tconsole} from "./utils"
+//import { NewtonianBody, AnimatedNewtonianBody } from './newtonian/NewtonianBody'
+//import { AnimatedGravitationalSystem } from './newtonian/GravitationalSystem'
+//import { OrbitalSystemHierarchicalArtist } from './artistry/OrbitalSystemHierarchicalArtist'
+import { EclipticOrthogonalsOrbitArtist, TraceAndOrthogonalsOrbitArtist } from './artistry/EclipticOrthogonalsOrbitArtist'
+import { Artist, ArtistsGroup } from './artistry/Animated'
+import { OrbitalSystemArtist } from './artistry/OrbitalSystemArtist'
+import { OrbiterArtist } from './artistry/OrbiterArtist'
+import { OrbitalSystem } from './core/OrbitalSystem'
+import { SpaceObject, SpatialObjectState } from './core/SpaceObject'
+import { NewtonianBody } from './newtonian/NewtonianBody'
+import { GravitationalSystem } from './newtonian/GravitationalSystem'
+import { OrthogonalArtist, VectorArtist } from './artistry/VectorArtist'
+import { OrbitStepsArtist } from './artistry/OrbitStepsArtist'
+import { EventManager3D } from './events/EventManager3D'
+import { SimpleEventListener3D } from './events/EventListener3D'
  
 // create scene, camera and renderer
 const scene = new THREE.Scene();
 
 //create renderer
-const canvas = document.querySelector('#threejs_canvas') as HTMLElement;
+const canvas = document.querySelector('#threejs_canvas') as HTMLCanvasElement;
 const renderer = new THREE.WebGLRenderer({canvas});
 
 //create camera with controls
@@ -61,6 +72,30 @@ const light = new THREE.DirectionalLight(color, intensity);
 light.position.set(-1, 2, 20);
 scene.add(light);
 
+/* handle window resize */
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize( window.innerWidth, window.innerHeight );
+}
+onWindowResize()
+window.addEventListener( 'resize', onWindowResize );
+
+/* EventManager3D */
+
+EventManager3D.initialize(camera, canvas)
+
+/* Vector Artist test */
+
+const va = new VectorArtist(new THREE.Vector3(1,1, 0), undefined, {color: 0xff2222}, 1)
+scene.add(va.object3d)
+const orthog = new OrthogonalArtist(new THREE.Vector3(1,1, 0),  {color: 0x22ff22})
+scene.add(orthog.object3d)
+
+/* Fin Vector Artist test */
+
+
 // create text div for date
 let text2 = document.createElement('div');
 text2.style.position = 'absolute';
@@ -75,42 +110,102 @@ text2.style.left = 0 + 'px';
 document.body.appendChild(text2);
 
 //KeplerOrbitalSystem
-const kos = new KeplerOrbitalSystem(sun, planets, ColoredSphere)
-kos.center.artist.object3d.scale.set(60, 60, 60)
-kos.initAnimation(epochs.J2000)
-scene.add(kos.object3d)
-for(let p of kos.orbiters){
-  let eclipt = new EclipticOrthogonalsOrbitArtist(p.orbit, p.data.orbitalPeriod/128,p.data.orbitalPeriod/128)
-  scene.add(eclipt.object3d)
-}
+const kos = KeplerOrbitalSystem.fromData(sunAndPlanets)
+kos.initialize()
+//kos.center.artist.object3d.scale.set(60, 60, 60)
+//kos.initAnimation(epochs.J2000)
+
+const orbitStepsLogger = new SimpleEventListener3D("osa-log",
+    (i: THREE.Intersection[], a: Artist, e: PointerEvent, ai: THREE.Intersection[])=>{
+      const intersection = i[0]
+      const state = intersection?.object?.userData.state as SpatialObjectState
+      console.log("HOVER OrbitStepsArtist: ", a, "s: ", state, "intersection", intersection)
+      console.log("     s: ", state)
+      console.log("     intersection:", intersection)
+      console.log("     intersections:", i.length)
+    },
+    (i: THREE.Intersection[], a: Artist, e: PointerEvent, ai: THREE.Intersection[])=>{
+      const intersection = i[0]
+      const state = intersection?.object?.userData.state as SpatialObjectState
+      console.log("CLICK OrbitStepsArtist: ", a, "s: ", state, "intersection", intersection)
+      console.log("     s: ", state)
+      console.log("     intersection:", intersection)
+      console.log("     intersections:", i.length)
+    },
+    true
+  )
+
+console.log("creating KeplerOrbitalSystem artist")
+const localArtistsFromOrbit: (
+  system: OrbitalSystem<SpatialObjectState,SpaceObject<SpatialObjectState>>,
+  o: SpaceObject<SpatialObjectState>
+)=>Artist[] = (s,o)=> [
+  new ColoredSphere(o.data.meanRadius, o.data.color)
+]
+const globalArtistsFromOrbit: (
+  system: OrbitalSystem<SpatialObjectState,SpaceObject<SpatialObjectState>>,
+  o: AbstractOrbit<SpatialObjectState> | NewtonianBody,
+)=>Artist[] = (s,o) => [
+  TraceAndOrthogonalsOrbitArtist.fullOrbit(s,o, undefined, 128, 128),
+  (()=>{
+    const startingSphere = new ColoredSphere(o.data.meanRadius/2,  0xffffff)
+    const initState = o.getInitialState()
+    startingSphere.object3d.position.x = initState.position.x
+    startingSphere.object3d.position.y = initState.position.y
+    startingSphere.object3d.position.z = initState.position.z
+    return startingSphere
+  })(),
+  (OrbitStepsArtist.fullOrbit(s,o, 3000*km, 0x666666, 128).add3dEventListener(orbitStepsLogger)[0])
+]
+const artistFromNonOrbitData: (
+  system, d: SpatialObjectData
+)=>Artist[] = (s,d) => [
+  new ColoredSphere(d.meanRadius, d.color, 60)
+]
+
+const kosartist = new OrbitalSystemArtist(
+  kos,
+  artistFromNonOrbitData,
+  localArtistsFromOrbit,
+  globalArtistsFromOrbit
+)
+kosartist.initAnimation(epochs.J2000)
+scene.add(kosartist.object3d)
+
+const sunArtist = kosartist.artists.get("Sun")
 
 // create ColoredSphere, & gravitational system
-const nb1 = new NewtonianBody(sun.mass, new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0))
+const nb1 = NewtonianBody.fromData(sun, undefined)
 const nb2 = NewtonianBody.fromData(earth, sun)//new NewtonianBody(earth.mass, new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,-2e-10))
-const pa1 = new ColoredSphere(earth.meanRadius*3,"yellow")
-const pa2 = new ColoredSphere(earth.meanRadius,"red")
-const anb1 = new AnimatedNewtonianBody(nb1)
-const anb2 = new AnimatedNewtonianBody(nb2)
-anb1.add(pa1)
-anb2.add(pa2)
-const ags = new AnimatedGravitationalSystem(epochs.J2000, [anb1, anb2])
+const gs = GravitationalSystem.fromData([sun, earth])
+console.log("MAIN.ts gs: ", gs)
+
+
+console.log("creating GravitationalSystem artist")
+const localArtistsFromOrbit2 = (s,o)=> o.data.id=="Earth"? [new ColoredSphere(o.data.meanRadius, 0xcccccc)] : []
+const globalArtistsFromOrbit2 = (s,o) => [
+  TraceAndOrthogonalsOrbitArtist.fullOrbit(s,o, 0x880000, 128, 128),
+  (OrbitStepsArtist.fullOrbit(s,o, 3000*km, 0xbb0000, 128).add3dEventListener(orbitStepsLogger)[0])
+]
+const gsartist = new OrbitalSystemArtist(
+  gs,
+  ()=>[],
+  localArtistsFromOrbit2,
+  globalArtistsFromOrbit2
+)
+gsartist.initAnimation(epochs.J2000)
+console.log("EARTH INITIAL STATE ", gs.getBody("Earth").initialState.clone())
+scene.add(gsartist.object3d)
+
+
 //@ts-ignore
 window.nb1=nb1
 //@ts-ignore
 window.nb1=nb2
 //@ts-ignore
-window.anb1=nb1
+window.gs=gs
 //@ts-ignore
-window.anb1=nb2
-//@ts-ignore
-window.pa1=pa1
-//@ts-ignore
-window.pa2=pa2
-// Initialize orbital system
-ags.initAnimation(epochs.J2000)
-scene.add(ags.object3d)
-/*console.log("planets.map(p=>p.artist.object3d.position.x)")
-console.log(planets.map(p=>p.artist.object3d.position.x))*/
+window.gsartist=gsartist
 
 // DEBUGGING: central axes helper
 //mercury.kepler.debug=true
@@ -140,12 +235,16 @@ scene.add(di)*/
 //addAxesHelper(pluto.orbit.orbit.object3d)
 //addAxesHelper(earth.artist.object3d)
 //addAxesHelper(jupiter.orbit.object3d)
-addAxesHelper(pa1.object3d)
-addAxesHelper(pa2.object3d)
-addAxesHelper((kos.bodies["Earth"] as DescriptiveOrbitalSystemOrbiter).orbit.mobile)
+//addAxesHelper(pa1.object3d)
+//addAxesHelper(pa2.object3d)
+//addAxesHelper((kos.bodies["Earth"] as DescriptiveOrbitalSystemOrbiter).orbit.mobile)
 
 console.log("launching...")
 // END DEBUGGING
+
+
+
+
 
 // animate!!
 let lastPrintTS = 0
@@ -153,52 +252,78 @@ let maxAnimationDurationReached = false
 let lastTimestamp = 0
 let currentSimulTimestamp = +epochs.J2000
 let animCount = 0
-function animate(timestamp:number) {
+function animate(animationTimestamp:number) {
   animCount++
-  //timestamp is a milliseconds timestamp since beginning of the animation, differences between 2 timestamps: usually around 16.66 milliseconds (60fps)
-  if(timestamp>config.maxAnimationDuration && !maxAnimationDurationReached){
-    timestamp = config.maxAnimationDuration
+  //animationTimestamp is a milliseconds timestamp since beginning of the animation, differences between 2 timestamps: usually around 16.66 milliseconds (60fps)
+  if(animationTimestamp>config.maxAnimationDuration && !maxAnimationDurationReached){
+    animationTimestamp = config.maxAnimationDuration
     maxAnimationDurationReached = true
-    console.log("timestamp>maxAnimationDuration!!")
+    console.log("animationTimestamp>maxAnimationDuration!!")
   }
-  if(timestamp<=config.maxAnimationDuration && animCount<=1000000000000){
-    const deltaT = (timestamp-lastTimestamp)
+  if(animationTimestamp<=config.maxAnimationDuration && animCount<=1000000000000){
+    const deltaT = (animationTimestamp-lastTimestamp)
     const simulDeltaT = deltaT * config.simulSecPerRealSec
     currentSimulTimestamp += simulDeltaT
-    ags.animate(currentSimulTimestamp)
-    kos.animate(currentSimulTimestamp)
-    if((timestamp>lastPrintTS+config.debugLogInterval) || maxAnimationDurationReached){
-      lastPrintTS=timestamp
+    //ags.animate(currentSimulTimestamp)
+    kosartist.animate(currentSimulTimestamp)
+    gsartist.animate(currentSimulTimestamp)
+    if((animationTimestamp>lastPrintTS+config.debugLogInterval) || maxAnimationDurationReached){
+      lastPrintTS=animationTimestamp
       text2.innerHTML = ""+new Date(currentSimulTimestamp)
     }
-    if((timestamp%config.textUpdateInterval)<30 || maxAnimationDurationReached){
-      lastPrintTS=timestamp
-      text2.innerHTML = new Date(currentSimulTimestamp) + (maxAnimationDurationReached? "":"<br>framerate:"+Math.round(1000/deltaT))
+    if((animationTimestamp%config.textUpdateInterval)<30 || maxAnimationDurationReached){
+      lastPrintTS=animationTimestamp
+      text2.innerHTML = new Date(currentSimulTimestamp) + (maxAnimationDurationReached? "":"<br>framerate NEWTON NEWTON NEWTON:"+Math.round(1000/deltaT))
     }
+
+    // DEBUGGING
+    const kosartisto3d = kosartist.object3d
+
+    //const earthGlobalArtist = kosartist.artists.get("Earth")[0]
+    //tconsole.log("earthGlobalArtist object3d _type", earthGlobalArtist._type, "earthGlobalArtist: ", earthGlobalArtist)
+    //tconsole.log("earthGlobalArtist object3d position", earthGlobalArtist.object3d.position)
+    //@ts-ignore
+    //tconsole.log("earthGlobalArtist mobile position", earthGlobalArtist?.mobile?.position)
+
+    //const earthlocalArtist = kosartist.artists.get("Earth")
+    //tconsole.log("earthlocalArtist object3d _type", earthlocalArtist._type, "earthlocalArtist: ", earthlocalArtist)
+    //tconsole.log("earthlocalArtist object3d position", earthlocalArtist.object3d.position)
+    //tconsole.log("earthlocalArtist mobile position", earthlocalArtist.mobile.position)
+    // END DEBUGGING
   }
-  updateCameraLS(timestamp)
+
+
+  updateCameraLS(animationTimestamp)
   resizeRendererToDisplaySize(renderer, camera)
   renderer.render( scene, camera );
+
+  // finding the intersects:
+  //gsartist.children[1].children[2].children[0].object3d.userData
+
   requestAnimationFrame( animate );
-  lastTimestamp = timestamp
+  lastTimestamp = animationTimestamp
 }
 requestAnimationFrame( animate );
 
 //@ts-ignore
 window.planets = planets
-planets.forEach(p=>window[p.name.toLowerCase()] = p)
+planets.forEach(p=>window[p.id.toLowerCase()] = p)
 //@ts-ignore
 window.kos = kos
 //@ts-ignore
+window.kosartist = kosartist
+//@ts-ignore
 window.kearth = kos.bodies["Earth"]
 //@ts-ignore
-window.ags = ags
+//window.ags = ags
 //@ts-ignore
 window.scene = scene
 //@ts-ignore
 window.sun = sun
 //@ts-ignore
-window.nbearth = nb2
+window.sunArtist = sunArtist
+//@ts-ignore
+//window.nbearth = nb2
 //@ts-ignore
 window.yr = yr
 //@ts-ignore

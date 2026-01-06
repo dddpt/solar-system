@@ -10,7 +10,7 @@ export type M=Distance
 export type Pc=Distance
 
 export const au:Au = 1
-export const km:Au = 1 / (1.495978707*10**8) * au
+export const km:Au = 1 / (149597870.7) * au
 export const m:Au = km/1000 * au
 export const pc:Au = 648000 / Math.PI * au
 export const distance = {km, au, m, pc}
