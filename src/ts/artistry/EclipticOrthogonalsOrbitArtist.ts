@@ -45,6 +45,11 @@ export class EclipticOrthogonalsOrbitArtist<OrbiterState extends SpatialObjectSt
     orthoNbSteps?: number,
     orthoStepInterval?: Msec,
   ): EclipticOrthogonalsOrbitArtist<OrbiterState>{
+    console.log("EclipticOrthogonalsOrbitArtist.fullOrbit() for orbit ",
+      orbit.data.id, 
+      ", orthoNbSteps", orthoNbSteps,
+      ", orthoStepInterval", orthoStepInterval
+    )
     const orthoStates: OrbiterState[] = system.getFullOrbitStates(orbit.data.id, orthoNbSteps, orthoStepInterval)
 
     return new EclipticOrthogonalsOrbitArtist(orthoStates, color)
@@ -59,6 +64,13 @@ export class EclipticOrthogonalsOrbitArtist<OrbiterState extends SpatialObjectSt
     orthoNbSteps?: number,
     orthoStepInterval?: Msec,
   ){
+    console.log("EclipticOrthogonalsOrbitArtist.fromTo() for orbit ",
+      orbit.data.id, 
+      " from ", fromTimestamp, 
+      " to ", toTimestamp, 
+      " with orthoNbSteps", orthoNbSteps,
+      ", orthoStepInterval", orthoStepInterval,
+    )
     const orthoStates: OrbiterState[] = system.getStatesFromTo(orbit.data.id, fromTimestamp, toTimestamp, orthoNbSteps, orthoStepInterval)
 
     return new EclipticOrthogonalsOrbitArtist(orthoStates, color)
@@ -104,6 +116,13 @@ export class TraceAndOrthogonalsOrbitArtist<OrbiterState extends SpatialObjectSt
     segmentsStepInterval?: Msec,
     orthoStepInterval?: Msec,
   ): TraceAndOrthogonalsOrbitArtist<OrbiterState>{
+    console.log("TraceAndOrthogonalsOrbitArtist.fullOrbit() for orbit ",
+      orbit.data.id, 
+      " with segmentsNbSteps", segmentsNbSteps,
+      ", orthoNbSteps", orthoNbSteps,
+      ", segmentsStepInterval", segmentsStepInterval,
+      ", orthoStepInterval", orthoStepInterval
+    )
     const segmentsStates: OrbiterState[] = system.getFullOrbitStates(orbit.data.id, segmentsNbSteps, segmentsStepInterval)
     const orthoStates: OrbiterState[] = system.getFullOrbitStates(orbit.data.id, orthoNbSteps, orthoStepInterval)
 
@@ -121,6 +140,15 @@ export class TraceAndOrthogonalsOrbitArtist<OrbiterState extends SpatialObjectSt
     segmentsStepInterval?: Msec,
     orthoStepInterval?: Msec,
   ){
+    console.log("TraceAndOrthogonalsOrbitArtist.fromTo() for orbit ",
+      orbit.data.id, 
+      " from ", fromTimestamp, 
+      " to ", toTimestamp, 
+      " with segmentsNbSteps", segmentsNbSteps,
+      ", orthoNbSteps", orthoNbSteps,
+      ", segmentsStepInterval", segmentsStepInterval,
+      ", orthoStepInterval", orthoStepInterval
+    )
     const segmentsStates: OrbiterState[] = system.getStatesFromTo(orbit.data.id, fromTimestamp, toTimestamp, segmentsNbSteps, segmentsStepInterval)
     const orthoStates: OrbiterState[] = system.getStatesFromTo(orbit.data.id, fromTimestamp, toTimestamp, orthoNbSteps, orthoStepInterval)
 

@@ -51,6 +51,11 @@ export class SimpleOrbitArtist<OrbiterState extends SpatialObjectState> extends 
     segmentsNbSteps?: number,
     segmentsStepInterval?: Msec,
   ): SimpleOrbitArtist<OrbiterState>{
+    console.log("SimpleOrbitArtist.fullOrbit() for orbit ",
+      orbit.data.id, 
+      " with segmentsNbSteps", segmentsNbSteps,
+      ", segmentsStepInterval", segmentsStepInterval,
+    )
     const segmentsStates: OrbiterState[] = system.getFullOrbitStates(orbit.data.id, segmentsNbSteps, segmentsStepInterval)
 
     return new SimpleOrbitArtist(segmentsStates, color)
@@ -65,6 +70,13 @@ export class SimpleOrbitArtist<OrbiterState extends SpatialObjectState> extends 
     segmentsNbSteps?: number,
     segmentsStepInterval?: Msec,
   ){
+    console.log("SimpleOrbitArtist.fromTo() for orbit ",
+      orbit.data.id, 
+      " from ", fromTimestamp, 
+      " to ", toTimestamp, 
+      " with segmentsNbSteps", segmentsNbSteps,
+      ", segmentsStepInterval", segmentsStepInterval,
+    )
     const segmentsStates: OrbiterState[] = system.getStatesFromTo(orbit.data.id, fromTimestamp, toTimestamp, segmentsNbSteps, segmentsStepInterval)
 
     return new SimpleOrbitArtist(segmentsStates, color)

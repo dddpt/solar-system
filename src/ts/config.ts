@@ -9,5 +9,5 @@ export const config={
   maxAnimationDuration: maxAnimationDuration,//365.25*d, // maximum amount of time the animation
   debugLogInterval: 2000,
   textUpdateInterval: 500,
-  animateSimulationMsecMaxInterval: 20*d
+  animateSimulationMsecMaxInterval: 2*d
 }

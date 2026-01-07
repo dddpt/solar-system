@@ -6,7 +6,7 @@ import { AbstractOrbit, CircularOrbit, EllipticOrbit, KeplerOrbit } from './desc
 import { KeplerOrbitalSystem } from './descriptive/KeplerOrbitalSystem'
 import { ColoredSphere } from "./artistry/PlanetArtist";
 import {planets, sun, mercury, earth, pluto, astronomicalBodies, epochs, jupiter, SpatialObjectData, sunAndPlanets} from "./data/SolarSystemData"
-import {yr, msec, sec, km, time, units} from "./core/spatialUnits"
+import {yr, msec, sec, km, time, units, month} from "./core/spatialUnits"
 import {addAxesHelper, resizeRendererToDisplaySize, tconsole} from "./utils"
 //import { NewtonianBody, AnimatedNewtonianBody } from './newtonian/NewtonianBody'
 //import { AnimatedGravitationalSystem } from './newtonian/GravitationalSystem'
@@ -146,7 +146,7 @@ const globalArtistsFromOrbit: (
   system: OrbitalSystem<SpatialObjectState,SpaceObject<SpatialObjectState>>,
   o: AbstractOrbit<SpatialObjectState> | NewtonianBody,
 )=>Artist[] = (s,o) => [
-  TraceAndOrthogonalsOrbitArtist.fullOrbit(s,o, undefined, 128, 128),
+  TraceAndOrthogonalsOrbitArtist.fullOrbit(s,o, 0x0000ff, 128, 128),
   (()=>{
     const startingSphere = new ColoredSphere(o.data.meanRadius/2,  0xffffff)
     const initState = o.getInitialState()
@@ -155,7 +155,7 @@ const globalArtistsFromOrbit: (
     startingSphere.object3d.position.z = initState.position.z
     return startingSphere
   })(),
-  (OrbitStepsArtist.fullOrbit(s,o, 3000*km, 0x666666, 128).add3dEventListener(orbitStepsLogger)[0])
+  (OrbitStepsArtist.fullOrbit(s,o, 3000*km, 0x0000ff, 128).add3dEventListener(orbitStepsLogger)[0])
 ]
 const artistFromNonOrbitData: (
   system, d: SpatialObjectData
@@ -175,17 +175,19 @@ scene.add(kosartist.object3d)
 const sunArtist = kosartist.artists.get("Sun")
 
 // create ColoredSphere, & gravitational system
-const nb1 = NewtonianBody.fromData(sun, undefined)
-const nb2 = NewtonianBody.fromData(earth, sun)//new NewtonianBody(earth.mass, new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,-2e-10))
-const gs = GravitationalSystem.fromData([sun, earth])
+const gs = GravitationalSystem.fromData([sun, earth, pluto])//(sunAndPlanets)//
 console.log("MAIN.ts gs: ", gs)
 
 
 console.log("creating GravitationalSystem artist")
+const from = +epochs.J2000
+const to = from+100*yr
+const nbSteps = 600
+
 const localArtistsFromOrbit2 = (s,o)=> o.data.id=="Earth"? [new ColoredSphere(o.data.meanRadius, 0xcccccc)] : []
 const globalArtistsFromOrbit2 = (s,o) => [
-  TraceAndOrthogonalsOrbitArtist.fullOrbit(s,o, 0x880000, 128, 128),
-  (OrbitStepsArtist.fullOrbit(s,o, 3000*km, 0xbb0000, 128).add3dEventListener(orbitStepsLogger)[0])
+  TraceAndOrthogonalsOrbitArtist.fromTo(s,o, from, to, 0x880000, 6000, 600),
+  (OrbitStepsArtist.fromTo(s,o, from, to, 3000*km, 0xbb0000, 600).add3dEventListener(orbitStepsLogger)[0])
 ]
 const gsartist = new OrbitalSystemArtist(
   gs,
@@ -198,10 +200,6 @@ console.log("EARTH INITIAL STATE ", gs.getBody("Earth").initialState.clone())
 scene.add(gsartist.object3d)
 
 
-//@ts-ignore
-window.nb1=nb1
-//@ts-ignore
-window.nb1=nb2
 //@ts-ignore
 window.gs=gs
 //@ts-ignore

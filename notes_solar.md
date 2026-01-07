@@ -473,3 +473,16 @@ onClick/onHover() arguments signature:
 - artist
 - whatelse?
 
+
+
+
+# DEBUGGING GS
+
+currently:
+- compute forces
+- compute acc
+- update velocity
+- update position
+
+with initialStates:
+- wrongly adds the initial acc to the initial velocity!!
